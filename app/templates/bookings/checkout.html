@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Simulated Checkout - {{ booking.booking_reference }} | Rydeon{% endblock %}
+
+{% block content %}
+<section class="py-4 bg-white border-bottom">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb small mb-1">
+                <li class="breadcrumb-item"><a href="{{ url_for('frontend.index') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('booking.my_bookings') }}">My Bookings</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('booking.confirmation', booking_id=booking.booking_id) }}">{{ booking.booking_reference }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Payment Simulation</li>
+            </ol>
+        </nav>
+        <h2 class="fw-bold mb-0">Simulated Payment Checkout</h2>
+    </div>
+</section>
+
+<div class="container py-4">
+    <!-- Demo Simulation Notice Banner -->
+    <div class="alert alert-warning border-warning-subtle shadow-sm rounded-4 p-4 mb-4">
+        <div class="d-flex align-items-start gap-3">
+            <div class="p-2 bg-warning bg-opacity-25 text-warning-emphasis rounded-circle fs-4">
+                <i class="bi bi-shield-exclamation"></i>
+            </div>
+            <div>
+                <h5 class="fw-bold mb-1 text-dark">Simulated University Demonstration Gateway</h5>
+                <p class="mb-0 text-secondary small">
+                    This payment checkout is a <strong>safe simulated sandbox</strong> built for academic and software engineering evaluation. 
+                    <strong>No real currency, bank accounts, or credit cards will be billed.</strong> Select any demo payment method below to authorize a simulated transaction and update the MySQL booking ledger.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left: Payment Simulator Form -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="p-2 bg-primary-subtle text-primary rounded-circle"><i class="bi bi-wallet2 fs-5"></i></span>
+                        <h5 class="fw-bold mb-0">Select Demo Payment Channel</h5>
+                    </div>
+                    <span class="badge bg-secondary-subtle text-secondary border font-monospace">SANDBOX-MODE</span>
+                </div>
+
+                <form method="POST" action="{{ url_for('booking.checkout', booking_id=booking.booking_id) }}" id="simulatedPaymentForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <!-- Payment Method Accordion / Radio Options -->
+                    <div class="mb-4">
+                        <!-- Option 1: Demo Card -->
+                        <div class="form-check p-3 border rounded-3 mb-3 bg-light bg-opacity-50">
+                            <input class="form-check-input ms-0 me-3" type="radio" name="payment_method" id="payMethodCard" value="Demo Credit Card (Visa)" checked>
+                            <label class="form-check-label w-100" for="payMethodCard">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold text-dark">Demo Credit / Debit Card</span>
+                                    <span class="d-flex gap-2 text-primary fs-5">
+                                        <i class="bi bi-credit-card"></i>
+                                        <i class="bi bi-credit-card-2-front"></i>
+                                    </span>
+                                </div>
+                                <div class="text-muted small mb-2">Simulate instant authorization with sandbox test card credentials.</div>
+
+                                <!-- Preset Quick Fill Buttons -->
+                                <div class="d-flex flex-wrap gap-2 mb-3">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm py-1 px-2 font-monospace" style="font-size: 0.75rem;" onclick="autofillCard('4111 2222 3333 4444', '12/28', '123', 'Demo Credit Card (Visa)')">
+                                        <i class="bi bi-magic me-1"></i> Visa (4111...)
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm py-1 px-2 font-monospace" style="font-size: 0.75rem;" onclick="autofillCard('5500 0000 0000 0004', '10/27', '456', 'Demo Credit Card (Mastercard)')">
+                                        <i class="bi bi-magic me-1"></i> Mastercard (5500...)
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm py-1 px-2 font-monospace" style="font-size: 0.75rem;" onclick="autofillCard('3782 8224 6310 005', '08/29', '789', 'Demo Credit Card (Amex)')">
+                                        <i class="bi bi-magic me-1"></i> Amex (3782...)
+                                    </button>
+                                </div>
+
+                                <div class="row g-2">
+                                    <div class="col-12">
+                                        <label class="form-label small text-muted mb-1">Card Number</label>
+                                        <input type="text" class="form-control form-control-sm font-monospace" id="demoCardNumber" value="4111 2222 3333 4444" placeholder="4111 2222 3333 4444">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="form-label small text-muted mb-1">Expiry Date</label>
+                                        <input type="text" class="form-control form-control-sm font-monospace" id="demoCardExpiry" value="12/28" placeholder="MM/YY">
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="form-label small text-muted mb-1">CVV / CVC</label>
+                                        <input type="password" class="form-control form-control-sm font-monospace" id="demoCardCvv" value="123" maxlength="4" placeholder="123">
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Option 2: Demo UPI / QR -->
+                        <div class="form-check p-3 border rounded-3 mb-3 bg-light bg-opacity-50">
+                            <input class="form-check-input ms-0 me-3" type="radio" name="payment_method" id="payMethodUPI" value="Demo UPI / QR Code">
+                            <label class="form-check-label w-100" for="payMethodUPI">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold text-dark">Demo UPI / Instant QR Code</span>
+                                    <i class="bi bi-qr-code text-primary fs-5"></i>
+                                </div>
+                                <div class="text-muted small mb-2">Simulate real-time QR scanner or Virtual Payment Address (VPA).</div>
+                                
+                                <div class="p-3 bg-white rounded border d-flex flex-column flex-sm-row align-items-center gap-3">
+                                    <div class="text-center p-2 border rounded bg-light" style="width: 90px; height: 90px;">
+                                        <i class="bi bi-qr-code-scan fs-1 text-primary"></i>
+                                        <div class="text-muted" style="font-size: 0.65rem;">SCAN DEMO</div>
+                                    </div>
+                                    <div>
+                                        <div class="small fw-semibold text-dark">Demo VPA:</div>
+                                        <code class="text-primary small">rydeon.sandbox@executive-pay</code>
+                                        <div class="small text-muted mt-1">One-click simulation simulates instant app intent approval.</div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Option 3: Demo Net Banking -->
+                        <div class="form-check p-3 border rounded-3 mb-3 bg-light bg-opacity-50">
+                            <input class="form-check-input ms-0 me-3" type="radio" name="payment_method" id="payMethodNetBanking" value="Demo Net Banking (Verified)">
+                            <label class="form-check-label w-100" for="payMethodNetBanking">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold text-dark">Demo Net Banking</span>
+                                    <i class="bi bi-bank text-primary fs-5"></i>
+                                </div>
+                                <div class="text-muted small mb-2">Direct bank transfer gateway simulation.</div>
+                                <select class="form-select form-select-sm" id="demoBankSelect">
+                                    <option value="Chase Bank Demo">JPMorgan Chase (Demo Simulator)</option>
+                                    <option value="Bank of America Demo">Bank of America (Demo Simulator)</option>
+                                    <option value="Wells Fargo Demo">Wells Fargo (Demo Simulator)</option>
+                                    <option value="HDFC Bank Demo">HDFC Bank (Demo Simulator)</option>
+                                    <option value="State Bank Demo">State Bank of India (Demo Simulator)</option>
+                                </select>
+                            </label>
+                        </div>
+
+                        <!-- Option 4: Demo Counter Cash -->
+                        <div class="form-check p-3 border rounded-3 bg-light bg-opacity-50">
+                            <input class="form-check-input ms-0 me-3" type="radio" name="payment_method" id="payMethodCounter" value="Demo Counter Payment (Terminal Hub)">
+                            <label class="form-check-label w-100" for="payMethodCounter">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold text-dark">Pay at Executive Terminal Counter</span>
+                                    <i class="bi bi-cash-coin text-success fs-5"></i>
+                                </div>
+                                <div class="text-muted small">Pay via physical card or cash directly upon vehicle handover at Airport Terminal 1 Hub.</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Authorization CTA -->
+                    <button type="submit" class="btn btn-primary-rydeon w-100 py-3 fw-bold fs-6">
+                        <i class="bi bi-check-circle-fill me-2"></i> Authorize Simulated Payment (${{ "%.2f"|format(booking.total_amount|float) }})
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right: Order Summary Card -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 85px;">
+                <h5 class="fw-bold mb-3">Rental Summary</h5>
+
+                <!-- Vehicle Thumbnail Mini Card -->
+                <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
+                    <img src="{{ booking.image_url }}" alt="{{ booking.vehicle_name }}" class="rounded-3 object-fit-cover shadow-sm" style="width: 100px; height: 75px;">
+                    <div>
+                        <span class="badge bg-dark bg-opacity-75 small text-white text-uppercase">{{ booking.vehicle_category }}</span>
+                        <h6 class="fw-bold text-dark mb-1 mt-1">{{ booking.vehicle_name }}</h6>
+                        <span class="text-muted small font-monospace">{{ booking.registration_number }}</span>
+                    </div>
+                </div>
+
+                <!-- Schedule Specs -->
+                <div class="mb-3 small">
+                    <div class="d-flex justify-content-between mb-2 text-secondary">
+                        <span>Pick-up Date:</span>
+                        <strong class="text-dark">{{ booking.start_date }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 text-secondary">
+                        <span>Return Date:</span>
+                        <strong class="text-dark">{{ booking.end_date }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 text-secondary">
+                        <span>Total Rental Days:</span>
+                        <strong class="text-primary">{{ booking.total_days }} Days</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 text-secondary">
+                        <span>Daily Rate:</span>
+                        <strong class="text-dark">${{ "%.2f"|format(booking.daily_rate|float) }} / day</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 text-secondary">
+                        <span>Collision Waiver (CDW):</span>
+                        <strong class="text-success">Complimentary</strong>
+                    </div>
+                </div>
+
+                <hr class="my-2">
+
+                <!-- Grand Total -->
+                <div class="d-flex justify-content-between align-items-baseline my-3">
+                    <span class="fw-bold fs-5 text-dark">Amount Due:</span>
+                    <span class="fw-bold fs-3 text-primary">${{ "%.2f"|format(booking.total_amount|float) }}</span>
+                </div>
+
+                <div class="p-3 bg-light rounded-3 border small text-muted">
+                    <i class="bi bi-lock-fill text-success me-1"></i>
+                    <strong>Simulated Transaction:</strong> Submitting will record a unique simulated transaction reference into MySQL and mark your reservation as confirmed.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function autofillCard(number, expiry, cvv, methodValue) {
+    document.getElementById('demoCardNumber').value = number;
+    document.getElementById('demoCardExpiry').value = expiry;
+    document.getElementById('demoCardCvv').value = cvv;
+    const cardRadio = document.getElementById('payMethodCard');
+    cardRadio.checked = true;
+    cardRadio.value = methodValue;
+}
+</script>
+{% endblock %}

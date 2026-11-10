@@ -249,6 +249,7 @@ def return_process():
     vehicle_condition = request.form.get('vehicle_condition', 'Good')
     manual_charges = request.form.get('manual_charges', 0.0)
     remarks = request.form.get('remarks', '')
+    late_multiplier = request.form.get('late_multiplier')
 
     try:
         summary = admin_service.process_vehicle_return(
@@ -256,7 +257,8 @@ def return_process():
             actual_return_dt_val=actual_return_date,
             vehicle_condition=vehicle_condition,
             manual_charges=manual_charges,
-            remarks=remarks
+            remarks=remarks,
+            late_multiplier=late_multiplier if late_multiplier else None
         )
         flash(
             f"Vehicle return processed for Booking #{booking_id}! "

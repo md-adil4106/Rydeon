@@ -17,6 +17,12 @@ def generate_unique_booking_reference():
     random_code = secrets.token_hex(3).upper()
     return f"RYD-{year}-{random_code}"
 
+def generate_simulated_transaction_reference():
+    """Generates a clearly identified simulated demo transaction reference."""
+    year = date.today().year
+    random_hex = secrets.token_hex(4).upper()
+    return f"SIM-TXN-{year}-{random_hex}"
+
 def parse_iso_date(date_val):
     """Safely converts string or date object into date."""
     if isinstance(date_val, date):
@@ -154,8 +160,8 @@ def create_customer_booking(user_id, vehicle_id, start_date_val, end_date_val, p
         """, (booking_ref, user_id, vehicle_id, start_date, end_date, total_days, total_amount))
         booking_id = cursor.lastrowid
 
-        # 5. Insert payment record
-        txn_ref = f"TXN-{booking_ref}"
+        # 5. Insert payment record (Simulated Transaction)
+        txn_ref = generate_simulated_transaction_reference()
         cursor.execute("""
             INSERT INTO payments (booking_id, amount, transaction_reference, payment_method, payment_status)
             VALUES (%s, %s, %s, %s, 'completed')
@@ -166,6 +172,52 @@ def create_customer_booking(user_id, vehicle_id, start_date_val, end_date_val, p
         validate_and_save_document(user_id, booking_id, "drivers_license", document_file)
 
     return get_booking_by_id(booking_id, user_id=user_id)
+
+def simulate_booking_payment(booking_id, user_id, payment_method, demo_meta=None):
+    """
+    Simulates a secure checkout payment transaction for an existing booking.
+    Generates a unique simulation reference, updates MySQL payment & booking status consistently.
+    """
+    booking = get_booking_by_id(booking_id, user_id=user_id)
+    if not booking:
+        raise ValueError("Booking record not found or access denied.")
+
+    if booking['payment_status'] == 'paid' and booking['booking_status'] == 'confirmed':
+        return {
+            "status": "already_paid",
+            "booking": booking,
+            "transaction_reference": booking.get('transaction_reference')
+        }
+
+    txn_ref = generate_simulated_transaction_reference()
+    amount = Decimal(str(booking['total_amount']))
+
+    with get_db_cursor(commit=True) as (conn, cursor):
+        # Upsert payment record
+        cursor.execute("""
+            INSERT INTO payments (booking_id, amount, transaction_reference, payment_method, payment_status)
+            VALUES (%s, %s, %s, %s, 'completed')
+            ON DUPLICATE KEY UPDATE
+                amount = VALUES(amount),
+                transaction_reference = VALUES(transaction_reference),
+                payment_method = VALUES(payment_method),
+                payment_status = 'completed'
+        """, (booking_id, amount, txn_ref, payment_method))
+
+        # Update booking status to confirmed & paid
+        cursor.execute("""
+            UPDATE bookings 
+            SET payment_status = 'paid',
+                booking_status = CASE WHEN booking_status = 'cancelled' THEN 'cancelled' ELSE 'confirmed' END
+            WHERE id = %s
+        """, (booking_id,))
+
+    updated = get_booking_by_id(booking_id, user_id=user_id)
+    return {
+        "status": "success",
+        "booking": updated,
+        "transaction_reference": txn_ref
+    }
 
 def get_booking_by_id(booking_id, user_id=None):
     """
@@ -179,8 +231,8 @@ def get_booking_by_id(booking_id, user_id=None):
                v.category AS vehicle_category, v.registration_number, v.seating_capacity,
                v.fuel_type, v.transmission, v.price_per_day AS daily_rate, v.image AS image_url,
                u.id AS customer_id, u.full_name AS customer_name, u.email AS customer_email, u.phone AS customer_phone,
-               p.transaction_reference, p.payment_method, p.payment_status AS txn_status,
-               r.actual_return_date, r.vehicle_condition, r.remarks
+               p.transaction_reference, p.payment_method, p.payment_status AS txn_status, p.created_at AS payment_date,
+               r.actual_return_date, r.additional_charges, r.vehicle_condition, r.remarks
         FROM bookings b
         JOIN vehicles v ON b.vehicle_id = v.id
         JOIN users u ON b.user_id = u.id

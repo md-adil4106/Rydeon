@@ -136,9 +136,26 @@
                         <td class="text-center">Included</td>
                         <td class="text-end text-success fw-bold">FREE</td>
                     </tr>
+                    {% if booking.additional_charges and booking.additional_charges|float > 0 %}
+                    <tr class="table-warning">
+                        <td>
+                            <div class="fw-bold text-danger">Return Additional Charges (Late Fee & Maintenance)</div>
+                            <div class="small text-muted">Recorded upon vehicle check-in by dispatch staff</div>
+                        </td>
+                        <td class="text-center">Surcharge</td>
+                        <td class="text-center">Return</td>
+                        <td class="text-end fw-bold text-danger">${{ "%.2f"|format(booking.additional_charges|float) }}</td>
+                    </tr>
+                    {% endif %}
                     <tr class="table-light">
                         <td colspan="3" class="text-end fw-bold text-dark fs-6">Total Billed & Paid:</td>
-                        <td class="text-end fw-bold text-primary fs-5">${{ "%.2f"|format(booking.total_amount|float) }}</td>
+                        <td class="text-end fw-bold text-primary fs-5">
+                            {% if booking.additional_charges and booking.additional_charges|float > 0 %}
+                                ${{ "%.2f"|format((booking.total_amount|float) + (booking.additional_charges|float)) }}
+                            {% else %}
+                                ${{ "%.2f"|format(booking.total_amount|float) }}
+                            {% endif %}
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -147,10 +164,18 @@
         <!-- Transaction Details -->
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center small text-muted border-top pt-3">
             <div>
-                Payment Reference: <span class="font-monospace text-dark">{{ booking.transaction_reference or 'CONF-PAID' }}</span> &bull; 
-                Method: <span class="text-dark">{{ booking.payment_method or 'Card' }}</span>
+                Payment Reference: <span class="font-monospace text-dark fw-bold">{{ booking.transaction_reference or 'SIM-TXN-PENDING' }}</span> &bull; 
+                Method: <span class="text-dark">{{ booking.payment_method or 'Demo Card' }}</span>
             </div>
-            <div>Status: <span class="badge bg-success-subtle text-success border">PAID IN FULL</span></div>
+            <div>
+                {% if booking.payment_status == 'paid' %}
+                    <span class="badge bg-success-subtle text-success border"><i class="bi bi-shield-check me-1"></i> PAID (SIMULATED)</span>
+                {% else %}
+                    <a href="{{ url_for('booking.checkout', booking_id=booking.booking_id) }}" class="badge bg-warning-subtle text-warning-emphasis border text-decoration-none py-1 px-2">
+                        <i class="bi bi-credit-card me-1"></i> PAY NOW (SIMULATION)
+                    </a>
+                {% endif %}
+            </div>
         </div>
     </div>
 
@@ -229,7 +254,10 @@
         <a href="{{ url_for('booking.my_bookings') }}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i> View All My Bookings
         </a>
-        <div class="d-flex gap-2">
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url_for('booking.rental_agreement', booking_id=booking.booking_id) }}" class="btn btn-outline-rydeon" target="_blank">
+                <i class="bi bi-file-earmark-text me-1"></i> Official Rental Agreement
+            </a>
             <button onclick="window.print()" class="btn btn-navy-rydeon">
                 <i class="bi bi-printer me-1"></i> Print Rental Voucher
             </button>

@@ -52,20 +52,26 @@
                     </div>
 
                     <!-- Payment Method Section -->
-                    <div class="d-flex align-items-center gap-2 mb-3 pt-3 border-top">
-                        <span class="p-2 bg-primary-subtle text-primary rounded-circle"><i class="bi bi-credit-card-2-front fs-5"></i></span>
-                        <h5 class="fw-bold mb-0">2. Payment Method</h5>
+                    <div class="d-flex align-items-center justify-content-between mb-3 pt-3 border-top">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="p-2 bg-primary-subtle text-primary rounded-circle"><i class="bi bi-credit-card-2-front fs-5"></i></span>
+                            <h5 class="fw-bold mb-0">2. Simulated Payment Channel</h5>
+                        </div>
+                        <span class="badge bg-warning-subtle text-warning-emphasis border small">DEMO SANDBOX</span>
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label small fw-bold text-uppercase text-secondary">Select Payment Option</label>
+                        <label class="form-label small fw-bold text-uppercase text-secondary">Select Demo Payment Channel</label>
                         <select class="form-select" name="payment_method" id="paymentMethodSelect">
-                            <option value="Credit Card (Visa)">Credit Card (Visa / Mastercard / Amex)</option>
-                            <option value="Debit Card">Debit Card</option>
-                            <option value="Apple Pay">Apple Pay</option>
-                            <option value="Google Pay">Google Pay</option>
+                            <option value="Demo Credit Card (Visa)">Demo Credit Card (Visa - 4111 2222 3333 4444)</option>
+                            <option value="Demo Credit Card (Mastercard)">Demo Credit Card (Mastercard - 5500 0000 0000 0004)</option>
+                            <option value="Demo UPI / QR Code">Demo UPI / Instant QR Code (Simulated)</option>
+                            <option value="Demo Net Banking">Demo Net Banking (Chase / HDFC Bank Simulation)</option>
+                            <option value="Demo Counter Payment">Pay at Executive Terminal Counter (Cash / Card)</option>
                         </select>
-                        <div class="form-text small text-muted">Billed securely at checkout. Zero counter surcharges.</div>
+                        <div class="form-text small text-muted">
+                            <i class="bi bi-info-circle me-1"></i> Academic sandbox demo. A unique simulated reference (<code>SIM-TXN-...</code>) is issued instantly.
+                        </div>
                     </div>
 
                     <!-- Identification Document Upload Section -->

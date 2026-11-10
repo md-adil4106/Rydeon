@@ -68,12 +68,15 @@
                                     </div>
 
                                     <div class="d-flex gap-2 pt-2 border-top">
-                                        <a href="{{ url_for('booking.confirmation', booking_id=b.booking_id) }}" class="btn btn-outline-rydeon btn-sm w-50">
+                                        <a href="{{ url_for('booking.confirmation', booking_id=b.booking_id) }}" class="btn btn-outline-rydeon btn-sm" style="flex: 1;">
                                             <i class="bi bi-receipt me-1"></i> Voucher
+                                        </a>
+                                        <a href="{{ url_for('booking.rental_agreement', booking_id=b.booking_id) }}" class="btn btn-outline-secondary btn-sm" target="_blank" title="Print Rental Agreement">
+                                            <i class="bi bi-file-earmark-text"></i>
                                         </a>
 
                                         <!-- Cancel Modal Trigger Form -->
-                                        <form method="POST" action="{{ url_for('booking.cancel_booking', booking_id=b.booking_id) }}" class="w-50" onsubmit="return confirm('Are you sure you wish to cancel reservation {{ b.booking_reference }}? Refunds are processed automatically.');">
+                                        <form method="POST" action="{{ url_for('booking.cancel_booking', booking_id=b.booking_id) }}" style="flex: 1;" onsubmit="return confirm('Are you sure you wish to cancel reservation {{ b.booking_reference }}? Refunds are processed automatically.');">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                             <button type="submit" class="btn btn-outline-danger btn-sm w-100">
                                                 Cancel
@@ -143,8 +146,11 @@
                                 {% endif %}
                             </td>
                             <td class="pe-4 text-end">
-                                <a href="{{ url_for('booking.confirmation', booking_id=b.booking_id) }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-file-earmark-text"></i> Voucher
+                                <a href="{{ url_for('booking.confirmation', booking_id=b.booking_id) }}" class="btn btn-outline-secondary btn-sm" title="Voucher">
+                                    <i class="bi bi-receipt"></i>
+                                </a>
+                                <a href="{{ url_for('booking.rental_agreement', booking_id=b.booking_id) }}" class="btn btn-outline-secondary btn-sm ms-1" target="_blank" title="Rental Agreement">
+                                    <i class="bi bi-file-earmark-text"></i>
                                 </a>
                             </td>
                         </tr>

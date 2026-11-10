@@ -61,11 +61,20 @@
                     </select>
                 </div>
 
-                <!-- Manual Extra Charges -->
-                <div class="col-md-6">
-                    <label class="form-label small fw-bold text-uppercase text-secondary">Manual Extra Charges (Cleaning / Fuel / Tolls $)</label>
+                <!-- Manual Extra Charges & Late Fee Multiplier -->
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Manual Extra Charges ($)</label>
                     <input type="number" step="0.01" min="0" class="form-control" name="manual_charges" value="0.00" placeholder="0.00">
-                    <div class="form-text small text-muted">Overdue late fees (1.5x daily rate per late day) are calculated automatically on submission.</div>
+                    <div class="form-text small text-muted">Cleaning, damage, tolls, or fuel refill.</div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Late Fee Tariff Rate</label>
+                    <div class="input-group">
+                        <input type="number" step="0.1" min="1.0" max="5.0" class="form-control" name="late_multiplier" value="1.5">
+                        <span class="input-group-text bg-light small">&times; Daily Rate</span>
+                    </div>
+                    <div class="form-text small text-muted">Overdue rate multiplier (default: 1.5x).</div>
                 </div>
             </div>
 
@@ -122,11 +131,13 @@
                             <div class="fw-semibold text-dark">{{ r.vehicle_name }}</div>
                             <div class="text-muted small font-monospace">{{ r.registration_number }}</div>
                         </td>
-                        <td class="small text-secondary">{{ r.end_date }}</td>
+                        <td class="small text-secondary">{{ r.actual_return_date.strftime('%Y-%m-%d %H:%M') if r.actual_return_date else r.end_date }}</td>
                         <td>
-                            <span class="badge bg-light text-dark border"><i class="bi bi-clipboard-check me-1"></i> Completed</span>
+                            <span class="badge bg-light text-dark border"><i class="bi bi-clipboard-check me-1"></i> {{ r.vehicle_condition or 'Good' }}</span>
                         </td>
-                        <td class="fw-bold text-dark">${{ "%.2f"|format(r.total_amount|float) }}</td>
+                        <td class="fw-bold {% if r.additional_charges and r.additional_charges|float > 0 %}text-danger{% else %}text-muted{% endif %}">
+                            ${{ "%.2f"|format(r.additional_charges|float if r.additional_charges is not none else 0.0) }}
+                        </td>
                         <td class="pe-4 text-end">
                             <a href="{{ url_for('booking.confirmation', booking_id=r.id) }}" class="btn btn-outline-secondary btn-sm" target="_blank">
                                 <i class="bi bi-file-earmark-text"></i>

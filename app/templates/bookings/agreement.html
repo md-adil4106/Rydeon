@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Rental Agreement - {{ booking.booking_reference }} | Rydeon{% endblock %}
+
+{% block extra_head %}
+<style>
+@media print {
+    .navbar-rydeon, .footer-rydeon, .no-print, .alert {
+        display: none !important;
+    }
+    body {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+        font-size: 12pt;
+    }
+    .agreement-container {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .agreement-card {
+        border: 1px solid #333333 !important;
+        box-shadow: none !important;
+    }
+    .print-break-inside {
+        page-break-inside: avoid;
+    }
+}
+.agreement-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+}
+.signature-line {
+    border-top: 1px dashed #64748B;
+    margin-top: 45px;
+    padding-top: 6px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4 agreement-container">
+    <!-- Top Action Bar (Hidden on Print) -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 no-print">
+        <a href="{{ url_for('booking.confirmation', booking_id=booking.booking_id) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Confirmation
+        </a>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-navy-rydeon">
+                <i class="bi bi-printer me-1"></i> Print Rental Agreement / PDF
+            </button>
+            <a href="{{ url_for('booking.my_bookings') }}" class="btn btn-outline-rydeon">
+                <i class="bi bi-list-check me-1"></i> My Bookings
+            </a>
+        </div>
+    </div>
+
+    <!-- Master Agreement Document -->
+    <div class="card agreement-card shadow-sm rounded-4 p-4 p-md-5">
+        <!-- Document Header -->
+        <div class="row align-items-center border-bottom pb-4 mb-4">
+            <div class="col-sm-7">
+                <div class="brand-logo text-dark mb-1 d-inline-flex align-items-center gap-2">
+                    <div class="brand-badge bg-primary text-white p-2 rounded">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <span class="fw-bold fs-3 text-dark">RYDEON</span>
+                </div>
+                <div class="text-uppercase small fw-bold text-secondary">Executive Vehicle Rental Services & Fleet Operations</div>
+                <div class="text-muted small">Terminal 1 Executive Hub, International Airport Road &bull; Concierge: +1 (800) 555-RYDE</div>
+            </div>
+            <div class="col-sm-5 text-sm-end mt-3 mt-sm-0">
+                <div class="badge bg-dark text-white px-3 py-2 text-uppercase font-monospace mb-1" style="font-size: 0.85rem;">
+                    CONTRACT # AGR-{{ booking.booking_reference }}
+                </div>
+                <div class="text-muted small">Booking Reference: <span class="font-monospace text-dark fw-bold">{{ booking.booking_reference }}</span></div>
+                <div class="text-muted small">Issued: {{ booking.created_at.strftime('%Y-%m-%d %H:%M') if booking.created_at else 'Active' }}</div>
+            </div>
+        </div>
+
+        <!-- Section 1: The Parties -->
+        <div class="row g-4 mb-4 print-break-inside">
+            <div class="col-md-6 border-end-md">
+                <h6 class="text-uppercase fw-bold text-primary small mb-2"><i class="bi bi-person-badge me-1"></i> Primary Renter (Lessee)</h6>
+                <div class="p-3 bg-light rounded-3 border">
+                    <h5 class="fw-bold text-dark mb-1">{{ booking.customer_name }}</h5>
+                    <div class="small text-secondary mb-1"><strong>Email:</strong> {{ booking.customer_email }}</div>
+                    <div class="small text-secondary mb-1"><strong>Phone:</strong> {{ booking.customer_phone }}</div>
+                    <div class="small text-secondary mb-1"><strong>Customer Account:</strong> RYD-USR-{{ booking.customer_id }}</div>
+                    <div class="small text-secondary"><strong>Verification:</strong> 
+                        {% if documents and documents[0].verification_status == 'verified' %}
+                            <span class="badge bg-success-subtle text-success border">Identity & License Verified</span>
+                        {% else %}
+                            <span class="badge bg-warning-subtle text-warning-emphasis border">Driver License on File</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <h6 class="text-uppercase fw-bold text-primary small mb-2"><i class="bi bi-car-front me-1"></i> Assigned Vehicle Specifications</h6>
+                <div class="p-3 bg-light rounded-3 border">
+                    <h5 class="fw-bold text-dark mb-1">{{ booking.vehicle_name }}</h5>
+                    <div class="small text-secondary mb-1"><strong>Category & Brand:</strong> {{ booking.vehicle_category|upper }} &bull; {{ booking.vehicle_brand }}</div>
+                    <div class="small text-secondary mb-1"><strong>Plate / Registration:</strong> <span class="font-monospace fw-bold text-primary">{{ booking.registration_number }}</span></div>
+                    <div class="small text-secondary mb-1"><strong>Drivetrain & Fuel:</strong> {{ booking.transmission }} &bull; {{ booking.fuel_type }}</div>
+                    <div class="small text-secondary"><strong>Seating Capacity:</strong> {{ booking.seating_capacity }} Certified Passenger Capacity</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Rental Timeline & Itinerary -->
+        <div class="p-3 bg-light rounded-3 border mb-4 print-break-inside">
+            <div class="row text-center g-3">
+                <div class="col-md-4">
+                    <div class="text-muted small text-uppercase fw-bold">Scheduled Pick-up</div>
+                    <div class="fw-bold fs-6 text-dark mt-1">{{ booking.start_date }} (10:00 AM)</div>
+                    <div class="small text-muted">Rydeon Executive Terminal Hub</div>
+                </div>
+                <div class="col-md-4 border-start-md border-end-md">
+                    <div class="text-muted small text-uppercase fw-bold">Authorized Duration</div>
+                    <div class="fw-bold fs-5 text-primary mt-1">{{ booking.total_days }} Rental Days</div>
+                    <div class="small text-muted">${{ "%.2f"|format(booking.daily_rate|float) }} Agreed Daily Rate</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-muted small text-uppercase fw-bold">Scheduled Return</div>
+                    <div class="fw-bold fs-6 text-dark mt-1">{{ booking.end_date }} (10:00 AM)</div>
+                    <div class="small text-muted">Rydeon Executive Terminal Hub</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Financial Statement & Payment Receipt -->
+        <div class="mb-4 print-break-inside">
+            <h6 class="text-uppercase fw-bold text-primary small mb-2"><i class="bi bi-receipt me-1"></i> Financial Accounting & Itemized Charges</h6>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle mb-0">
+                    <thead class="table-light small text-uppercase text-secondary">
+                        <tr>
+                            <th>Charge Description</th>
+                            <th class="text-center" style="width: 140px;">Unit Rate</th>
+                            <th class="text-center" style="width: 120px;">Quantity</th>
+                            <th class="text-end" style="width: 160px;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">{{ booking.vehicle_name }} Base Rental Tariff</div>
+                                <div class="small text-muted">Includes unlimited mileage & 24/7 mechanical assistance</div>
+                            </td>
+                            <td class="text-center">${{ "%.2f"|format(booking.daily_rate|float) }} / day</td>
+                            <td class="text-center">{{ booking.total_days }} Days</td>
+                            <td class="text-end fw-bold">${{ "%.2f"|format(booking.total_amount|float) }}</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">Comprehensive Collision Damage Waiver (CDW)</div>
+                                <div class="small text-muted">Zero-deductible commercial coverage waiver</div>
+                            </td>
+                            <td class="text-center">$0.00</td>
+                            <td class="text-center">Included</td>
+                            <td class="text-end text-success fw-bold">COMPLIMENTARY</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">Airport Terminal Concession & Road Safety Fees</div>
+                                <div class="small text-muted">Mandatory transport regulatory clearance</div>
+                            </td>
+                            <td class="text-center">$0.00</td>
+                            <td class="text-center">Included</td>
+                            <td class="text-end text-success fw-bold">INCLUDED</td>
+                        </tr>
+                        {% if booking.additional_charges and booking.additional_charges|float > 0 %}
+                        <tr class="table-warning">
+                            <td>
+                                <div class="fw-bold text-danger">Vehicle Return Additional Charges (Post-Inspection)</div>
+                                <div class="small text-muted">Late return surcharge and/or maintenance cleaning fee recorded upon check-in</div>
+                            </td>
+                            <td class="text-center">Inspection</td>
+                            <td class="text-center">Return</td>
+                            <td class="text-end fw-bold text-danger">${{ "%.2f"|format(booking.additional_charges|float) }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr class="table-light">
+                            <td colspan="3" class="text-end fw-bold text-dark fs-6">Net Rental Total Authorized:</td>
+                            <td class="text-end fw-bold text-primary fs-5">
+                                {% if booking.additional_charges and booking.additional_charges|float > 0 %}
+                                    ${{ "%.2f"|format((booking.total_amount|float) + (booking.additional_charges|float)) }}
+                                {% else %}
+                                    ${{ "%.2f"|format(booking.total_amount|float) }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Payment Simulation Statement -->
+            <div class="p-3 bg-light rounded-bottom border border-top-0 d-flex flex-column flex-md-row justify-content-between align-items-md-center small text-muted">
+                <div>
+                    <strong>Payment Method:</strong> {{ booking.payment_method or 'Demo Simulated Card' }} &bull;
+                    <strong>Transaction Reference:</strong> <span class="font-monospace text-dark fw-bold">{{ booking.transaction_reference or 'SIM-TXN-DEMO' }}</span>
+                </div>
+                <div>
+                    <span class="badge bg-success-subtle text-success border px-2 py-1"><i class="bi bi-shield-check me-1"></i> PAID & AUTHORIZED (SIMULATED)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Terms & Conditions -->
+        <div class="mb-4 print-break-inside">
+            <h6 class="text-uppercase fw-bold text-primary small mb-2"><i class="bi bi-file-earmark-lock me-1"></i> Contract Terms & Operating Policies</h6>
+            <div class="p-3 bg-light rounded-3 border small text-secondary">
+                <ol class="mb-0 ps-3">
+                    <li class="mb-1"><strong>Authorized Driver:</strong> The vehicle may only be operated by the licensed individual named in this contract, who must remain at least 21 years of age and hold an unexpired driving permit.</li>
+                    <li class="mb-1"><strong>Return Schedule & Late Surcharges:</strong> Vehicles returned beyond the scheduled date/time without prior executive authorization will incur a late fee computed at 1.5 times the standard daily rental rate for each overdue day, plus applicable terminal processing fees.</li>
+                    <li class="mb-1"><strong>Fuel & Cleanliness Policy:</strong> The vehicle must be returned with an equivalent fuel/battery level as recorded at vehicle handover, and in a sanitized condition.</li>
+                    <li class="mb-1"><strong>Prohibited Operations:</strong> Renter shall not use the vehicle for off-road driving, sub-leasing, illegal transport, or under the influence of any intoxicants.</li>
+                    <li><strong>Academic Demonstration Notice:</strong> This agreement and payment transaction are generated as part of a university software engineering project demonstration. All references are simulated.</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Section 5: Signature Blocks -->
+        <div class="row g-4 pt-3 print-break-inside">
+            <div class="col-6">
+                <div class="signature-line">
+                    <div class="fw-bold text-dark">{{ booking.customer_name }}</div>
+                    <div class="text-muted small">Signature of Primary Renter (Lessee)</div>
+                    <div class="text-muted small mt-1">Date: {{ booking.start_date }}</div>
+                </div>
+            </div>
+            <div class="col-6 text-end">
+                <div class="signature-line">
+                    <div class="fw-bold text-dark">Rydeon Terminal Dispatch Officer</div>
+                    <div class="text-muted small">Authorized Station Officer (Lessor)</div>
+                    <div class="text-muted small mt-1">Seal & Handover Authorized</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

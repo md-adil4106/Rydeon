@@ -108,6 +108,80 @@ def confirmation(booking_id):
         documents=documents
     )
 
+@booking_bp.route('/bookings/<int:booking_id>/checkout', methods=['GET', 'POST'])
+@booking_bp.route('/bookings/<int:booking_id>/pay', methods=['GET', 'POST'])
+@login_required
+def checkout(booking_id):
+    """
+    Simulated Payment Checkout Gateway.
+    Allows customers to select demo payment methods (Card, UPI, Net Banking, Counter)
+    and complete simulated sandbox transactions with unique reference generation.
+    """
+    user_id = session['user_id']
+    is_admin = session.get('role') == 'admin'
+
+    booking = booking_service.get_booking_by_id(
+        booking_id,
+        user_id=None if is_admin else user_id
+    )
+
+    if not booking:
+        abort(404)
+
+    if request.method == 'POST':
+        csrf_token = request.form.get('csrf_token')
+        if not validate_csrf_token(csrf_token):
+            flash("Security check failed (invalid CSRF token). Please resubmit.", "danger")
+            return redirect(url_for('booking.checkout', booking_id=booking_id))
+
+        payment_method = request.form.get('payment_method', 'Demo Credit Card (Visa)')
+
+        try:
+            result = booking_service.simulate_booking_payment(
+                booking_id=booking_id,
+                user_id=user_id,
+                payment_method=payment_method
+            )
+            flash(
+                f"Simulated payment processed successfully! "
+                f"Demo Transaction Reference: {result['transaction_reference']}. "
+                f"Your vehicle reservation is confirmed.",
+                "success"
+            )
+            return redirect(url_for('booking.confirmation', booking_id=booking_id))
+        except ValueError as exc:
+            flash(str(exc), "danger")
+            return redirect(url_for('booking.checkout', booking_id=booking_id))
+
+    return render_template('bookings/checkout.html', booking=booking)
+
+@booking_bp.route('/bookings/<int:booking_id>/agreement')
+@login_required
+def rental_agreement(booking_id):
+    """
+    Printable Official Rental Agreement and Contract Voucher.
+    Contains customer details, vehicle specifications, rental timeline,
+    itemized pricing breakdown, binding clauses, and signature blocks.
+    """
+    user_id = session['user_id']
+    is_admin = session.get('role') == 'admin'
+
+    booking = booking_service.get_booking_by_id(
+        booking_id,
+        user_id=None if is_admin else user_id
+    )
+
+    if not booking:
+        abort(404)
+
+    documents = document_service.get_booking_documents(booking_id)
+
+    return render_template(
+        'bookings/agreement.html',
+        booking=booking,
+        documents=documents
+    )
+
 @booking_bp.route('/my-bookings')
 @login_required
 def my_bookings():

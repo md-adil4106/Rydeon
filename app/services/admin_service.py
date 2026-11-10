@@ -224,17 +224,19 @@ def update_vehicle_status(vehicle_id, new_status):
 # BOOKING MANAGEMENT & CONFLICT-AWARE APPROVALS
 # ==============================================================================
 def get_all_bookings_admin(search=None, status=None):
-    """Retrieves all reservations with customer, vehicle, and payment details."""
+    """Retrieves all reservations with customer, vehicle, payment, and return details."""
     sql = """
         SELECT b.id, b.booking_reference, b.start_date, b.end_date, b.total_days, 
                b.total_amount, b.booking_status, b.payment_status, b.created_at,
                u.id AS customer_id, u.full_name AS customer_name, u.email AS customer_email, u.phone AS customer_phone,
                v.id AS vehicle_id, v.name AS vehicle_name, v.category AS vehicle_category, v.registration_number,
-               p.transaction_reference, p.payment_method
+               p.transaction_reference, p.payment_method,
+               r.actual_return_date, r.additional_charges, r.vehicle_condition, r.remarks AS return_remarks
         FROM bookings b
         JOIN users u ON b.user_id = u.id
         JOIN vehicles v ON b.vehicle_id = v.id
         LEFT JOIN payments p ON b.id = p.booking_id
+        LEFT JOIN returns r ON b.id = r.booking_id
         WHERE 1=1
     """
     params = []
@@ -344,9 +346,9 @@ def get_active_bookings_for_return():
     """
     return execute_query(sql, fetch_all=True) or []
 
-def process_vehicle_return(booking_id, actual_return_dt_val, vehicle_condition, manual_charges=0.0, remarks=None):
+def process_vehicle_return(booking_id, actual_return_dt_val, vehicle_condition, manual_charges=0.0, remarks=None, late_multiplier=None):
     """
-    Records vehicle return, calculates late charges automatically,
+    Records vehicle return, calculates late charges automatically using configurable multiplier,
     marks booking 'completed', and frees up vehicle status to 'available'.
     """
     booking = execute_query("""
@@ -374,22 +376,34 @@ def process_vehicle_return(booking_id, actual_return_dt_val, vehicle_condition, 
     else:
         actual_dt = datetime.now()
 
-    # 1. Automatic Late Return Fee Computation
+    # 1. Configurable Late Return Fee Computation
     scheduled_end = booking['end_date']
     daily_rate = float(booking['price_per_day'])
     late_fee = 0.0
 
+    if late_multiplier is None:
+        try:
+            multiplier = float(os.environ.get('LATE_FEE_MULTIPLIER', 1.5))
+        except (ValueError, TypeError):
+            multiplier = 1.5
+    else:
+        try:
+            multiplier = float(late_multiplier)
+        except (ValueError, TypeError):
+            multiplier = 1.5
+
+    overdue_days = 0
     if actual_dt.date() > scheduled_end:
         overdue_days = (actual_dt.date() - scheduled_end).days
-        # Late fee policy: 1.5x daily rental rate for each overdue day
-        late_fee = overdue_days * daily_rate * 1.5
+        # Late fee policy: configurable multiplier (default 1.5x) daily rental rate per overdue day
+        late_fee = round(overdue_days * daily_rate * multiplier, 2)
 
     try:
-        extra_charges = float(manual_charges or 0.0)
+        extra_charges = round(float(manual_charges or 0.0), 2)
     except (ValueError, TypeError):
         extra_charges = 0.0
 
-    total_additional_charges = late_fee + extra_charges
+    total_additional_charges = round(late_fee + extra_charges, 2)
 
     # 2. Store Return record and update booking + vehicle in a transaction
     with get_db_cursor(commit=True) as (conn, cursor):
@@ -410,6 +424,8 @@ def process_vehicle_return(booking_id, actual_return_dt_val, vehicle_condition, 
         "booking_id": booking_id,
         "vehicle_name": booking['vehicle_name'],
         "actual_return_date": actual_dt,
+        "overdue_days": overdue_days,
+        "late_multiplier": multiplier,
         "late_fee": late_fee,
         "manual_charges": extra_charges,
         "total_additional_charges": total_additional_charges,
