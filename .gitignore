@@ -16,6 +16,12 @@ env/
 # Uploads and User-Generated Files
 uploads/*
 !uploads/.gitkeep
+!uploads/vehicles/
+uploads/vehicles/*
+!uploads/vehicles/.gitkeep
+!uploads/documents/
+uploads/documents/*
+!uploads/documents/.gitkeep
 
 # Flask / Instance Directory
 instance/

@@ -121,8 +121,19 @@ def get_db_cursor(commit=False, dictionary=True):
         conn.rollback()
         raise exc
     finally:
-        cursor.close()
-        conn.close()
+        try:
+            if getattr(conn, 'unread_result', False):
+                cursor.fetchall()
+        except Exception:
+            pass
+        try:
+            cursor.close()
+        except Exception:
+            pass
+        try:
+            conn.close()
+        except Exception:
+            pass
 
 def execute_query(sql, params=None, fetch_one=False, fetch_all=False, commit=False, dictionary=True):
     """
@@ -136,7 +147,13 @@ def execute_query(sql, params=None, fetch_one=False, fetch_all=False, commit=Fal
             row_count = cursor.rowcount
             return {'lastrowid': last_id, 'rowcount': row_count}
         if fetch_one:
-            return cursor.fetchone()
+            row = cursor.fetchone()
+            try:
+                if getattr(conn, 'unread_result', False):
+                    cursor.fetchall()
+            except Exception:
+                pass
+            return row
         if fetch_all:
             return cursor.fetchall()
         return None

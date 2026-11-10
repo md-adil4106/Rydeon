@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Vehicle Return Processing & Inspection | Rydeon Admin{% endblock %}
+
+{% block content %}
+{% include 'admin/components/subnav.html' %}
+
+<div class="container pb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-0 text-dark">Vehicle Return & Check-In Management</h3>
+            <p class="text-muted small mb-0">Record physical returns, evaluate condition, compute automated late return fees, and restore fleet availability.</p>
+        </div>
+        <span class="badge bg-success-subtle text-success border px-3 py-2 fs-6">
+            {{ active_rentals|length }} Active Rentals Currently on Road
+        </span>
+    </div>
+
+    <!-- Active Rentals Return Form Card -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-4 bg-white">
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <span class="p-2 bg-primary-subtle text-primary rounded-circle"><i class="bi bi-arrow-return-left fs-5"></i></span>
+            <h5 class="fw-bold mb-0">Process Vehicle Check-In & Inspection</h5>
+        </div>
+
+        {% if active_rentals %}
+        <form method="POST" action="{{ url_for('admin.return_process') }}" id="returnProcessForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="row g-3 mb-3">
+                <!-- Select Active Booking -->
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Select Active Booking</label>
+                    <select class="form-select" name="booking_id" id="returnBookingSelect" required>
+                        <option value="">-- Choose active rental to check in --</option>
+                        {% for b in active_rentals %}
+                        <option value="{{ b.id }}" data-scheduled="{{ b.end_date }}" data-rate="{{ b.price_per_day }}" data-car="{{ b.vehicle_name }}">
+                            {{ b.booking_reference }} - {{ b.customer_name }} ({{ b.vehicle_name }}, Due: {{ b.end_date }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Actual Return Date & Time -->
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Actual Return Date & Time</label>
+                    <input type="datetime-local" class="form-control" name="actual_return_date" id="actualReturnInput" required>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <!-- Vehicle Condition -->
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Vehicle Condition Post-Inspection</label>
+                    <select class="form-select" name="vehicle_condition" required>
+                        <option value="Excellent - Pristine & Sanitized" selected>Excellent - Pristine & Sanitized</option>
+                        <option value="Good - Normal Road Dust">Good - Normal Road Dust</option>
+                        <option value="Fair - Requires Interior Detailing">Fair - Requires Interior Detailing</option>
+                        <option value="Minor Damage - Scratches / Dings">Minor Damage - Scratches / Dings</option>
+                        <option value="Major Damage - Bodywork Required">Major Damage - Bodywork Required</option>
+                    </select>
+                </div>
+
+                <!-- Manual Extra Charges -->
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Manual Extra Charges (Cleaning / Fuel / Tolls $)</label>
+                    <input type="number" step="0.01" min="0" class="form-control" name="manual_charges" value="0.00" placeholder="0.00">
+                    <div class="form-text small text-muted">Overdue late fees (1.5x daily rate per late day) are calculated automatically on submission.</div>
+                </div>
+            </div>
+
+            <!-- Remarks -->
+            <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Inspection Remarks & Notes</label>
+                <textarea class="form-control" name="remarks" rows="2" placeholder="Odometer reading, fuel/battery level, cosmetic state, concierge handover signatures..."></textarea>
+            </div>
+
+            <!-- Submit Action -->
+            <div class="d-flex justify-content-end gap-2">
+                <button type="submit" class="btn btn-primary-rydeon px-4 py-2 fw-bold">
+                    <i class="bi bi-check2-circle me-1"></i> Finalize Return & Mark Vehicle Available
+                </button>
+            </div>
+        </form>
+        {% else %}
+        <div class="alert alert-info py-3 px-4 d-flex align-items-center gap-2 mb-0">
+            <i class="bi bi-info-circle-fill fs-5"></i>
+            <div>There are currently no active confirmed rentals out on the road to return.</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Historical Returns Audit Log -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Recent Returns & Completed Check-Ins</span>
+            <span class="badge bg-light text-dark border">{{ recent_returns|length }} Completed Records</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase text-secondary">
+                    <tr>
+                        <th class="ps-4">Reference</th>
+                        <th>Customer</th>
+                        <th>Vehicle</th>
+                        <th>Return Date</th>
+                        <th>Condition</th>
+                        <th>Extra Charges</th>
+                        <th class="pe-4 text-end">Voucher</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in recent_returns %}
+                    <tr>
+                        <td class="ps-4 font-monospace fw-bold text-dark small">{{ r.booking_reference }}</td>
+                        <td>
+                            <div class="fw-semibold text-dark">{{ r.customer_name }}</div>
+                            <div class="text-muted small">{{ r.customer_email }}</div>
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-dark">{{ r.vehicle_name }}</div>
+                            <div class="text-muted small font-monospace">{{ r.registration_number }}</div>
+                        </td>
+                        <td class="small text-secondary">{{ r.end_date }}</td>
+                        <td>
+                            <span class="badge bg-light text-dark border"><i class="bi bi-clipboard-check me-1"></i> Completed</span>
+                        </td>
+                        <td class="fw-bold text-dark">${{ "%.2f"|format(r.total_amount|float) }}</td>
+                        <td class="pe-4 text-end">
+                            <a href="{{ url_for('booking.confirmation', booking_id=r.id) }}" class="btn btn-outline-secondary btn-sm" target="_blank">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted small">No past returns recorded yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const returnInput = document.getElementById('actualReturnInput');
+    if (returnInput && !returnInput.value) {
+        // Pre-fill with current local datetime format YYYY-MM-DDTHH:MM
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        returnInput.value = now.toISOString().slice(0, 16);
+    }
+});
+</script>
+{% endblock %}

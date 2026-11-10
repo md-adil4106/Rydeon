@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS documents (
     document_type VARCHAR(50) NOT NULL,
     file_path VARCHAR(255) NOT NULL,
     verification_status ENUM('pending', 'verified', 'rejected') DEFAULT 'pending',
+    remarks VARCHAR(255) DEFAULT NULL,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_documents_user FOREIGN KEY (user_id) 
         REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,

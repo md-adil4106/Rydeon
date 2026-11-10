@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Driver Document Verification | Rydeon Admin{% endblock %}
+
+{% block content %}
+{% include 'admin/components/subnav.html' %}
+
+<div class="container pb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-0 text-dark">Customer Document Verification</h3>
+            <p class="text-muted small mb-0">Review driving licenses, audit validity, store verification remarks, and approve or reject submissions.</p>
+        </div>
+        <div>
+            <span class="badge bg-primary px-3 py-2 fs-6">Audit Queue</span>
+        </div>
+    </div>
+
+    <!-- Filter by Status -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+        <form method="GET" action="{{ url_for('admin.documents_list') }}" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                <select class="form-select" name="status" onchange="this.form.submit()">
+                    <option value="all" {% if not status or status == 'all' %}selected{% endif %}>All Documents</option>
+                    <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending Verification Only</option>
+                    <option value="verified" {% if status == 'verified' %}selected{% endif %}>Approved / Verified</option>
+                    <option value="rejected" {% if status == 'rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('admin.documents_list') }}" class="btn btn-outline-secondary btn-sm w-100">Reset Filter</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Documents Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Uploaded Documents</span>
+            <span class="badge bg-light text-dark border">{{ documents|length }} Files</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase text-secondary">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Customer</th>
+                        <th>Type</th>
+                        <th>Associated Booking</th>
+                        <th>Uploaded File</th>
+                        <th>Status & Remarks</th>
+                        <th class="pe-4 text-end">Audit Decision</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in documents %}
+                    <tr>
+                        <td class="ps-4 text-muted small">#{{ doc.id }}</td>
+                        <td>
+                            <div class="fw-semibold text-dark">{{ doc.customer_name }}</div>
+                            <div class="text-muted small">{{ doc.customer_email }}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border text-capitalize">
+                                <i class="bi bi-person-badge me-1"></i> {{ doc.document_type.replace('_', ' ') }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if doc.booking_reference %}
+                                <a href="{{ url_for('booking.confirmation', booking_id=doc.booking_id) }}" class="font-monospace small text-primary text-decoration-none" target="_blank">
+                                    {{ doc.booking_reference }}
+                                </a>
+                                <div class="text-muted small">{{ doc.vehicle_name or '' }}</div>
+                            {% else %}
+                                <span class="text-muted small">Customer Profile</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="/{{ doc.file_path }}" target="_blank" class="btn btn-outline-primary btn-sm py-1 px-2 font-monospace" style="font-size: 0.8rem;">
+                                <i class="bi bi-file-earmark-arrow-down me-1"></i> View / Download
+                            </a>
+                            <div class="text-muted small mt-1">{{ doc.uploaded_at.strftime('%Y-%m-%d %H:%M') if doc.uploaded_at else '' }}</div>
+                        </td>
+                        <td>
+                            <div>
+                                {% if doc.verification_status == 'verified' %}
+                                    <span class="badge bg-success-subtle text-success border px-2 py-1"><i class="bi bi-check-circle me-1"></i> VERIFIED</span>
+                                {% elif doc.verification_status == 'rejected' %}
+                                    <span class="badge bg-danger-subtle text-danger border px-2 py-1"><i class="bi bi-x-circle me-1"></i> REJECTED</span>
+                                {% else %}
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border px-2 py-1"><i class="bi bi-clock me-1"></i> PENDING</span>
+                                {% endif %}
+                            </div>
+                            {% if doc.remarks %}
+                                <div class="small text-secondary mt-1"><i class="bi bi-chat-left-text me-1"></i> {{ doc.remarks }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 text-end">
+                            <!-- Inline Form for Verification Decision -->
+                            <form method="POST" action="{{ url_for('admin.document_verify', document_id=doc.id) }}" class="d-inline-flex gap-1 align-items-center justify-content-end">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="text" name="remarks" class="form-control form-control-sm" style="width: 130px;" placeholder="Notes (optional)" value="{{ doc.remarks or '' }}">
+                                
+                                <button type="submit" name="status" value="verified" class="btn btn-success btn-sm py-1 px-2" title="Approve Document">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                                <button type="submit" name="status" value="rejected" class="btn btn-danger btn-sm py-1 px-2" title="Reject Document">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted small">No documents found matching the filter.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

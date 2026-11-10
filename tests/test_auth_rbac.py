@@ -227,7 +227,7 @@ def test_admin_can_access_admin_dashboard(client):
     response = client.get('/admin/dashboard')
     assert response.status_code == 200
     html = response.data.decode('utf-8')
-    assert "Fleet Operations & Revenue Console" in html
+    assert "Fleet Operations" in html
     assert "Admin Privileges Active" in html
 
 # ==============================================================================

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Vehicle | Rydeon Admin{% endblock %}
+
+{% block content %}
+{% include 'admin/components/subnav.html' %}
+
+<div class="container pb-5" style="max-width: 820px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-0 text-dark">Add New Vehicle to Fleet</h3>
+            <p class="text-muted small mb-0">Record a new model with mechanical specs, pricing, and certified photography.</p>
+        </div>
+        <a href="{{ url_for('admin.vehicles_list') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Roster
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+        <form method="POST" action="{{ url_for('admin.vehicle_add') }}" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <!-- Name & Brand -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-7">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Vehicle Model & Trim</label>
+                    <input type="text" class="form-control" name="name" placeholder="e.g. Porsche 911 Carrera 4S" required>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Manufacturer / Brand</label>
+                    <input type="text" class="form-control" name="brand" placeholder="e.g. Porsche" required>
+                </div>
+            </div>
+
+            <!-- Category, Registration, Price -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Category</label>
+                    <select class="form-select" name="category" required>
+                        <option value="Luxury">Luxury</option>
+                        <option value="Electric">Electric</option>
+                        <option value="Sports">Sports</option>
+                        <option value="SUV">SUV</option>
+                        <option value="Sedan">Sedan</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Registration Number (Unique)</label>
+                    <input type="text" class="form-control font-monospace" name="registration_number" placeholder="e.g. RYD-SP-1313" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Daily Rental Rate ($)</label>
+                    <input type="number" step="0.01" min="1" class="form-control" name="price_per_day" placeholder="195.00" required>
+                </div>
+            </div>
+
+            <!-- Specs: Seats, Fuel, Transmission, Status -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Seating Capacity</label>
+                    <input type="number" min="1" max="12" class="form-control" name="seating_capacity" value="5" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Fuel / Powertrain</label>
+                    <select class="form-select" name="fuel_type">
+                        <option value="Gasoline">Gasoline / V8</option>
+                        <option value="Electric">100% Electric</option>
+                        <option value="Hybrid">Hybrid</option>
+                        <option value="Mild Hybrid">Mild Hybrid</option>
+                        <option value="Plug-in Hybrid">Plug-in Hybrid</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Transmission</label>
+                    <select class="form-select" name="transmission">
+                        <option value="Automatic">Automatic</option>
+                        <option value="Dual-Clutch">Dual-Clutch (PDK/DCT)</option>
+                        <option value="Manual">Manual</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Initial Status</label>
+                    <select class="form-select" name="status">
+                        <option value="available" selected>Available</option>
+                        <option value="rented">Rented</option>
+                        <option value="maintenance">Maintenance</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Image Upload or External Image URL -->
+            <div class="row g-3 mb-3 p-3 bg-light rounded-3 border">
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Upload Vehicle Photo</label>
+                    <input type="file" class="form-control" name="image_file" accept=".png,.jpg,.jpeg,.webp">
+                    <div class="form-text small text-muted">Uploads safely to <code>uploads/vehicles/</code>.</div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Or Specify Image URL</label>
+                    <input type="url" class="form-control" name="image_url" placeholder="https://images.unsplash.com/...">
+                    <div class="form-text small text-muted">Direct high-res photo link if file not available.</div>
+                </div>
+            </div>
+
+            <!-- Narrative Description -->
+            <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase text-secondary">Vehicle Narrative / Highlights</label>
+                <textarea class="form-control" name="description" rows="3" placeholder="Describe key powertrain characteristics, suspension features, interior luxuries, and sound systems..."></textarea>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{{ url_for('admin.vehicles_list') }}" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary-rydeon px-4">
+                    <i class="bi bi-check2-circle me-1"></i> Register Vehicle to Fleet
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

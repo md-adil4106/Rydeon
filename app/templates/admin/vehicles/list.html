@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Fleet Inventory Management | Rydeon Admin{% endblock %}
+
+{% block content %}
+{% include 'admin/components/subnav.html' %}
+
+<div class="container pb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-0 text-dark">Vehicle Fleet Inventory</h3>
+            <p class="text-muted small mb-0">Manage vehicle specifications, availability states, rates, and fleet additions.</p>
+        </div>
+        <a href="{{ url_for('admin.vehicle_add') }}" class="btn btn-primary-rydeon">
+            <i class="bi bi-plus-circle me-1"></i> Add New Vehicle
+        </a>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white">
+        <form method="GET" action="{{ url_for('admin.vehicles_list') }}" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control border-start-0" name="search" placeholder="Search by name, brand, or registration..." value="{{ search or '' }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" name="category" onchange="this.form.submit()">
+                    <option value="" {% if not category %}selected{% endif %}>All Categories</option>
+                    <option value="Luxury" {% if category == 'Luxury' %}selected{% endif %}>Luxury</option>
+                    <option value="Electric" {% if category == 'Electric' %}selected{% endif %}>Electric</option>
+                    <option value="Sports" {% if category == 'Sports' %}selected{% endif %}>Sports</option>
+                    <option value="SUV" {% if category == 'SUV' %}selected{% endif %}>SUV</option>
+                    <option value="Sedan" {% if category == 'Sedan' %}selected{% endif %}>Sedan</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-navy-rydeon btn-sm w-50">Filter</button>
+                <a href="{{ url_for('admin.vehicles_list') }}" class="btn btn-outline-secondary btn-sm w-50">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Fleet Inventory Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Fleet Roster</span>
+            <span class="badge bg-light text-dark border">{{ fleet|length }} Vehicles</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase text-secondary">
+                    <tr>
+                        <th class="ps-4">Vehicle</th>
+                        <th>Category</th>
+                        <th>Registration</th>
+                        <th>Specs</th>
+                        <th>Rate / Day</th>
+                        <th>Status</th>
+                        <th class="pe-4 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for car in fleet %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="{{ car.image }}" alt="{{ car.name }}" class="rounded-3 object-fit-cover shadow-sm" style="width: 60px; height: 45px;">
+                                <div>
+                                    <div class="fw-bold text-dark">{{ car.name }}</div>
+                                    <div class="text-muted small">{{ car.brand }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-dark bg-opacity-75 text-white">{{ car.category }}</span></td>
+                        <td class="font-monospace text-primary fw-semibold">{{ car.registration_number }}</td>
+                        <td class="small text-secondary">
+                            {{ car.seating_capacity }} Seats &bull; {{ car.transmission }} &bull; {{ car.fuel_type }}
+                        </td>
+                        <td class="fw-bold text-dark">${{ "%.2f"|format(car.price_per_day|float) }}</td>
+                        <td>
+                            <!-- Status Toggle Dropdown Form -->
+                            <form method="POST" action="{{ url_for('admin.vehicle_change_status', vehicle_id=car.id) }}" class="d-inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <select name="status" class="form-select form-select-sm fw-semibold" style="width: 140px;" onchange="this.form.submit()">
+                                    <option value="available" {% if car.status == 'available' %}selected{% endif %}>Available</option>
+                                    <option value="rented" {% if car.status == 'rented' %}selected{% endif %}>Rented</option>
+                                    <option value="maintenance" {% if car.status == 'maintenance' %}selected{% endif %}>Maintenance</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td class="pe-4 text-end">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('booking.vehicle_details', vehicle_id=car.id) }}" class="btn btn-outline-secondary" title="View Public Page" target="_blank">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ url_for('admin.vehicle_edit', vehicle_id=car.id) }}" class="btn btn-outline-primary" title="Edit Vehicle">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <!-- Delete Form -->
+                                <form method="POST" action="{{ url_for('admin.vehicle_delete', vehicle_id=car.id) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to remove vehicle #{{ car.id }} ({{ car.name }})? This will fail if dependent reservations exist.');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-outline-danger" title="Delete Vehicle">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted small">No vehicles matched your search filter.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

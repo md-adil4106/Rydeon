@@ -1,0 +1,37 @@
+<div class="bg-white border-bottom shadow-sm mb-4">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-between py-2">
+            <ul class="nav nav-pills gap-1">
+                <li class="nav-item">
+                    <a class="nav-link py-2 px-3 small fw-bold {% if request.endpoint in ('admin.dashboard', 'admin.index') %}active bg-primary{% else %}text-secondary{% endif %}" href="{{ url_for('admin.dashboard') }}">
+                        <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link py-2 px-3 small fw-bold {% if 'vehicle' in request.endpoint %}active bg-primary{% else %}text-secondary{% endif %}" href="{{ url_for('admin.vehicles_list') }}">
+                        <i class="bi bi-car-front-fill me-1"></i> Fleet Management
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link py-2 px-3 small fw-bold {% if 'booking' in request.endpoint %}active bg-primary{% else %}text-secondary{% endif %}" href="{{ url_for('admin.bookings_list') }}">
+                        <i class="bi bi-receipt me-1"></i> Bookings Audit
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link py-2 px-3 small fw-bold {% if 'document' in request.endpoint %}active bg-primary{% else %}text-secondary{% endif %}" href="{{ url_for('admin.documents_list') }}">
+                        <i class="bi bi-file-earmark-check me-1"></i> Document Verification
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link py-2 px-3 small fw-bold {% if 'return' in request.endpoint %}active bg-primary{% else %}text-secondary{% endif %}" href="{{ url_for('admin.returns_overview') }}">
+                        <i class="bi bi-arrow-return-left me-1"></i> Vehicle Returns
+                    </a>
+                </li>
+            </ul>
+
+            <div class="d-none d-md-block text-muted small">
+                <i class="bi bi-shield-lock-fill text-danger me-1"></i> Admin Console
+            </div>
+        </div>
+    </div>
+</div>
