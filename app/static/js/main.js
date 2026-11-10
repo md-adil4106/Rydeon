@@ -210,27 +210,25 @@ function initVehicleModal() {
 }
 
 /**
- * 4. Client-side Validation for Auth Forms (Login & Register)
+ * 4. Client-side Real-time Feedback for Auth Forms (Login & Register)
  */
 function initAuthValidation() {
     const registerForm = document.getElementById('registrationForm');
-    const loginForm = document.getElementById('loginForm');
 
     if (registerForm) {
         const pass = document.getElementById('regPassword');
         const confirmPass = document.getElementById('regConfirmPassword');
         const feedback = document.getElementById('passwordFeedback');
 
+        // Prevent submit only if passwords explicitly do not match
         registerForm.addEventListener('submit', (e) => {
-            e.preventDefault();
             if (pass && confirmPass && pass.value !== confirmPass.value) {
+                e.preventDefault();
                 if (feedback) feedback.style.display = 'block';
                 confirmPass.classList.add('is-invalid');
-                return;
+                confirmPass.focus();
+                return false;
             }
-            // Frontend demo notification & redirect
-            alert('Registration form validated successfully! Redirecting to Customer Dashboard preview.');
-            window.location.href = '/dashboard';
         });
 
         if (confirmPass && pass) {
@@ -246,13 +244,5 @@ function initAuthValidation() {
                 }
             });
         }
-    }
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            // Frontend demo redirect to dashboard
-            window.location.href = '/dashboard';
-        });
     }
 }

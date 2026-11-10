@@ -25,21 +25,66 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('frontend.index') }}#why-us">Why Choose Us</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.endpoint == 'frontend.dashboard' %}active{% endif %}" href="{{ url_for('frontend.dashboard') }}">
-                        <i class="bi bi-person-circle me-1"></i> Dashboard
-                    </a>
-                </li>
+                
+                {% if session.get('user_id') %}
+                    {% if session.get('role') == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link text-warning fw-bold {% if request.blueprint == 'admin' %}active{% endif %}" href="{{ url_for('admin.dashboard') }}">
+                            <i class="bi bi-shield-lock-fill me-1"></i> Admin Console
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'frontend.dashboard' %}active{% endif %}" href="{{ url_for('frontend.dashboard') }}">
+                            <i class="bi bi-person-circle me-1"></i> Dashboard
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
 
             <!-- Auth Buttons -->
             <div class="d-flex align-items-center gap-2">
-                <a href="{{ url_for('frontend.login') }}" class="btn btn-auth-login">
-                    <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
-                </a>
-                <a href="{{ url_for('frontend.register') }}" class="btn btn-auth-register">
-                    Join Rydeon
-                </a>
+                {% if session.get('user_id') %}
+                    <!-- User Profile & Sign Out -->
+                    <div class="dropdown">
+                        <button class="btn btn-auth-login dropdown-toggle d-flex align-items-center gap-2" type="button" id="userMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle"></i>
+                            <span class="small">{{ session.get('user_name', 'My Account') }}</span>
+                            {% if session.get('role') == 'admin' %}
+                                <span class="badge bg-danger py-0 px-1 font-monospace" style="font-size: 0.65rem;">ADMIN</span>
+                            {% endif %}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" aria-labelledby="userMenuButton">
+                            <li><h6 class="dropdown-header small text-muted">{{ session.get('email', '') }}</h6></li>
+                            {% if session.get('role') == 'admin' %}
+                            <li>
+                                <a class="dropdown-item small" href="{{ url_for('admin.dashboard') }}">
+                                    <i class="bi bi-speedometer me-2 text-warning"></i> Admin Console
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li>
+                                <a class="dropdown-item small" href="{{ url_for('frontend.dashboard') }}">
+                                    <i class="bi bi-calendar-check me-2 text-primary"></i> Customer Dashboard
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item small text-danger" href="{{ url_for('auth.logout') }}">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Sign Out
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <!-- Anonymous Guest Options -->
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-auth-login">
+                        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+                    </a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-auth-register">
+                        Join Rydeon
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>

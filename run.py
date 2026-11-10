@@ -9,7 +9,7 @@ if __name__ == "__main__":
     debug = os.environ.get("FLASK_DEBUG", "1") == "1"
     
     print("=" * 60)
-    print("  🚗 RYDEON - VEHICLE RENTAL SYSTEM")
+    print("  RYDEON - VEHICLE RENTAL SYSTEM")
     print(f"  Running development server at: http://{host}:{port}/")
     print("=" * 60)
     

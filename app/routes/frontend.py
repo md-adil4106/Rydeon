@@ -5,8 +5,9 @@ Connects user interface templates with MySQL services for vehicles,
 customer bookings, and fleet exploration.
 """
 
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, session
 from app.services import vehicle_service, booking_service, user_service
+from app.services.decorators import login_required
 from app.database.db import check_db_health
 
 frontend_bp = Blueprint('frontend', __name__)
@@ -18,7 +19,6 @@ def index():
         featured_vehicles = vehicle_service.get_featured_vehicles(limit=3)
         all_vehicles = vehicle_service.get_all_vehicles()
     except Exception as err:
-        # If DB connection fails, render graceful DB error page
         return render_template('errors/db_error.html', error=str(err)), 503
 
     return render_template(
@@ -49,22 +49,18 @@ def catalogue():
         vehicles=vehicles
     )
 
-@frontend_bp.route('/login')
-def login():
-    """Customer & Admin Login Screen."""
-    return render_template('login.html')
-
-@frontend_bp.route('/register')
-def register():
-    """New Customer Registration Screen."""
-    return render_template('register.html')
-
 @frontend_bp.route('/dashboard')
+@login_required
 def dashboard():
-    """Customer Dashboard with active rentals, booking history, and vehicle recommendations."""
+    """Customer Dashboard protected by authentication. Displays ONLY current user records."""
+    user_id = session['user_id']
+
     try:
-        user = user_service.get_default_preview_user()
-        user_id = user['id'] if user else 1
+        user = user_service.get_user_by_id(user_id)
+        if not user:
+            # Fallback if session user was deleted
+            session.clear()
+            return render_template('login.html'), 401
 
         active_booking = booking_service.get_user_active_booking(user_id)
         booking_history = booking_service.get_user_booking_history(user_id)
@@ -72,10 +68,11 @@ def dashboard():
         recommended = vehicle_service.get_featured_vehicles(limit=3)
 
         user_display = {
-            "name": user.get('full_name', 'Alexander Wright') if user else 'Alexander Wright',
-            "email": user.get('email', 'alexander.wright@example.com') if user else 'alexander.wright@example.com',
-            "phone": user.get('phone', '+1 (555) 389-7241') if user else '+1 (555) 389-7241',
-            "tier": "Executive Gold",
+            "id": user['id'],
+            "name": user.get('full_name', 'Valued Customer'),
+            "email": user.get('email', ''),
+            "phone": user.get('phone', ''),
+            "tier": "Executive Gold" if user.get('role') == 'customer' else "Administrator",
             "stats": stats
         }
     except Exception as err:

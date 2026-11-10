@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Console | Rydeon Operations{% endblock %}
+
+{% block content %}
+<!-- Admin Hero Header -->
+<section class="py-4" style="background: linear-gradient(135deg, #0B132B 0%, #151D3B 100%); color: #FFFFFF;">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="badge bg-danger text-white px-2 py-1 fw-bold text-uppercase">
+                        <i class="bi bi-shield-lock-fill me-1"></i> Admin Privileges Active
+                    </span>
+                    <span class="text-white-50 small">System Administrator: {{ session.get('user_name', 'Admin') }}</span>
+                </div>
+                <h2 class="text-white fw-bold mb-1">Fleet Operations & Revenue Console</h2>
+                <p class="text-white-50 mb-0 small">Audit reservations, inspect fleet availability, and monitor customer activity across hubs.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('frontend.catalogue') }}" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-eye me-1"></i> Public Catalogue
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Admin Metrics -->
+<div class="container py-4">
+    <div class="row g-3 mb-4">
+        <!-- 1. Total Fleet -->
+        <div class="col-lg-3 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Total Fleet</div>
+                    <h3 class="fw-bold mb-0 text-dark">{{ fleet_stats.total_vehicles or 0 }}</h3>
+                    <div class="text-success small fw-semibold mt-1">
+                        <i class="bi bi-check-circle me-1"></i> {{ fleet_stats.available_count or 0 }} Available
+                    </div>
+                </div>
+                <div class="stat-icon bg-primary-subtle text-primary"><i class="bi bi-car-front-fill"></i></div>
+            </div>
+        </div>
+
+        <!-- 2. Vehicles On Rent -->
+        <div class="col-lg-3 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Active Rentals</div>
+                    <h3 class="fw-bold mb-0 text-dark">{{ fleet_stats.rented_count or 0 }}</h3>
+                    <div class="text-secondary small mt-1">
+                        {{ fleet_stats.maintenance_count or 0 }} in Maintenance
+                    </div>
+                </div>
+                <div class="stat-icon bg-warning-subtle text-warning"><i class="bi bi-speedometer"></i></div>
+            </div>
+        </div>
+
+        <!-- 3. Registered Customers -->
+        <div class="col-lg-3 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Registered Drivers</div>
+                    <h3 class="fw-bold mb-0 text-dark">{{ customer_count or 0 }}</h3>
+                    <div class="text-muted small mt-1">Verified User Profiles</div>
+                </div>
+                <div class="stat-icon bg-info-subtle text-info"><i class="bi bi-people-fill"></i></div>
+            </div>
+        </div>
+
+        <!-- 4. Total Billed Revenue -->
+        <div class="col-lg-3 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Gross Revenue</div>
+                    <h3 class="fw-bold mb-0 text-success">${{ "%.2f"|format(booking_stats.gross_revenue|float) }}</h3>
+                    <div class="text-muted small mt-1">{{ booking_stats.total_bookings or 0 }} Total Bookings</div>
+                </div>
+                <div class="stat-icon bg-success-subtle text-success"><i class="bi bi-currency-dollar"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Reservations Audit Table -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <span class="p-1 bg-primary-subtle text-primary rounded"><i class="bi bi-receipt"></i></span>
+                <h5 class="fw-bold mb-0">Recent Rental Reservations</h5>
+            </div>
+            <span class="badge bg-light text-dark border">{{ recent_bookings|length }} Records</span>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-uppercase text-secondary">
+                        <tr>
+                            <th class="ps-4">Ref #</th>
+                            <th>Customer</th>
+                            <th>Vehicle</th>
+                            <th>Period</th>
+                            <th>Billed</th>
+                            <th>Booking Status</th>
+                            <th class="pe-4">Payment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in recent_bookings %}
+                        <tr>
+                            <td class="ps-4 fw-bold text-dark small">RYD-BK-{{ b.id }}</td>
+                            <td>
+                                <div class="fw-semibold text-dark">{{ b.customer_name }}</div>
+                                <div class="text-muted small">{{ b.customer_email }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-dark">{{ b.vehicle_name }}</div>
+                                <div class="text-muted small">{{ b.registration_number }}</div>
+                            </td>
+                            <td class="small text-secondary">{{ b.start_date }} to {{ b.end_date }} ({{ b.total_days }}d)</td>
+                            <td class="fw-bold text-dark">${{ "%.2f"|format(b.total_amount|float) }}</td>
+                            <td>
+                                {% if b.booking_status == 'confirmed' %}
+                                    <span class="badge bg-success-subtle text-success border px-2 py-1 text-uppercase">Confirmed</span>
+                                {% elif b.booking_status == 'completed' %}
+                                    <span class="badge bg-secondary-subtle text-secondary border px-2 py-1 text-uppercase">Completed</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark border px-2 py-1 text-uppercase">{{ b.booking_status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="pe-4">
+                                <span class="badge bg-info-subtle text-primary border px-2 py-1 text-uppercase">{{ b.payment_status }}</span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted small">No bookings registered in the system.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fleet Inventory Table -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <span class="p-1 bg-secondary-subtle text-secondary rounded"><i class="bi bi-car-front"></i></span>
+                <h5 class="fw-bold mb-0">Complete Fleet Inventory</h5>
+            </div>
+            <span class="text-muted small">{{ fleet|length }} Vehicles in MySQL</span>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-uppercase text-secondary">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Vehicle Make & Model</th>
+                            <th>Category</th>
+                            <th>Registration</th>
+                            <th>Capacity</th>
+                            <th>Rate / Day</th>
+                            <th class="pe-4">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for car in fleet %}
+                        <tr>
+                            <td class="ps-4 text-muted small">{{ car.id }}</td>
+                            <td>
+                                <span class="fw-bold text-dark">{{ car.name }}</span>
+                                <span class="badge bg-light text-secondary border ms-1">{{ car.brand }}</span>
+                            </td>
+                            <td><span class="badge bg-dark bg-opacity-75 text-white">{{ car.category }}</span></td>
+                            <td class="font-monospace small text-primary">{{ car.registration_number }}</td>
+                            <td class="small text-secondary">{{ car.seating_capacity }} Passengers</td>
+                            <td class="fw-bold text-dark">${{ "%.2f"|format(car.price_per_day|float) }}</td>
+                            <td class="pe-4">
+                                {% if car.status == 'available' %}
+                                    <span class="badge bg-success-subtle text-success border px-2 py-1">AVAILABLE</span>
+                                {% elif car.status == 'rented' %}
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border px-2 py-1">RENTED</span>
+                                {% else %}
+                                    <span class="badge bg-danger-subtle text-danger border px-2 py-1">MAINTENANCE</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

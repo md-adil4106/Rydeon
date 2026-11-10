@@ -229,7 +229,12 @@ def test_frontend_routes_render_db_data(client):
     assert "Porsche Taycan 4S" in cat_html
     assert "Cadillac Escalade" in cat_html
 
-    # Dashboard renders active booking and user from DB
+    # Dashboard renders active booking and user from DB when authenticated
+    with client.session_transaction() as sess:
+        sess['user_id'] = 2
+        sess['user_name'] = 'Alexander Wright'
+        sess['role'] = 'customer'
+
     dash_res = client.get('/dashboard')
     assert dash_res.status_code == 200
     dash_html = dash_res.data.decode('utf-8')

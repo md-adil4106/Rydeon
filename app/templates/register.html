@@ -17,20 +17,17 @@
             <p class="text-muted small">Access exclusive rates, rapid reservations, and booking management</p>
         </div>
 
-        <!-- Prototype Notice -->
-        <div class="prototype-notice">
-            <i class="bi bi-info-circle-fill flex-shrink-0"></i>
-            <div><strong>Frontend Preview:</strong> Account registration validation is handled client-side. Database persistence will be connected in Phase 3.</div>
-        </div>
-
         <!-- Registration Form -->
-        <form id="registrationForm" novalidate>
+        <form method="POST" action="{{ url_for('auth.register') }}" id="registrationForm">
+            <!-- CSRF Token -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
             <!-- Full Name -->
             <div class="mb-3">
                 <label for="regFullName" class="form-label small fw-bold text-uppercase text-secondary">Full Name</label>
                 <div class="input-group">
                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-person"></i></span>
-                    <input type="text" class="form-control border-start-0" id="regFullName" placeholder="Alexander Wright" required>
+                    <input type="text" class="form-control border-start-0" id="regFullName" name="full_name" placeholder="Alexander Wright" value="{{ full_name or '' }}" required autofocus>
                 </div>
             </div>
 
@@ -40,14 +37,14 @@
                     <label for="regEmail" class="form-label small fw-bold text-uppercase text-secondary">Email Address</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
-                        <input type="email" class="form-control border-start-0" id="regEmail" placeholder="alex@example.com" required>
+                        <input type="email" class="form-control border-start-0" id="regEmail" name="email" placeholder="alex@example.com" value="{{ email or '' }}" required>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <label for="regPhone" class="form-label small fw-bold text-uppercase text-secondary">Phone Number</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-telephone"></i></span>
-                        <input type="tel" class="form-control border-start-0" id="regPhone" placeholder="+1 (555) 019-2834" required>
+                        <input type="tel" class="form-control border-start-0" id="regPhone" name="phone" placeholder="+1 (555) 019-2834" value="{{ phone or '' }}" required>
                     </div>
                 </div>
             </div>
@@ -58,14 +55,14 @@
                     <label for="regPassword" class="form-label small fw-bold text-uppercase text-secondary">Password</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
-                        <input type="password" class="form-control border-start-0" id="regPassword" placeholder="Minimum 8 chars" required minlength="8">
+                        <input type="password" class="form-control border-start-0" id="regPassword" name="password" placeholder="Min 8 characters" required minlength="8">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <label for="regConfirmPassword" class="form-label small fw-bold text-uppercase text-secondary">Confirm Password</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-shield-lock"></i></span>
-                        <input type="password" class="form-control border-start-0" id="regConfirmPassword" placeholder="Repeat password" required>
+                        <input type="password" class="form-control border-start-0" id="regConfirmPassword" name="confirm_password" placeholder="Repeat password" required minlength="8">
                     </div>
                 </div>
             </div>
@@ -77,9 +74,9 @@
 
             <!-- Terms Agreement -->
             <div class="mb-4 form-check">
-                <input type="checkbox" class="form-check-input" id="termsCheck" required checked>
+                <input type="checkbox" class="form-check-input" id="termsCheck" name="terms" required checked>
                 <label class="form-check-label small text-muted" for="termsCheck">
-                    I agree to the <a href="#" class="text-primary text-decoration-none" onclick="alert('Terms of Service terms will be finalized with legal compliance.'); return false;">Terms of Service</a> and Rental Agreement policies.
+                    I agree to the <a href="#" class="text-primary text-decoration-none">Terms of Service</a> and Rental Agreement policies.
                 </label>
             </div>
 
@@ -92,7 +89,7 @@
         <!-- Login Link -->
         <div class="text-center mt-4 pt-3 border-top">
             <span class="text-muted small">Already possess a Rydeon profile?</span>
-            <a href="{{ url_for('frontend.login') }}" class="small fw-bold ms-1 text-primary">Sign In</a>
+            <a href="{{ url_for('auth.login') }}" class="small fw-bold ms-1 text-primary">Sign In</a>
         </div>
     </div>
 </div>

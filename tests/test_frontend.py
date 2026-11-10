@@ -46,7 +46,6 @@ def test_login_page(client):
     assert "Sign In to Account" in html
     assert "loginEmail" in html
     assert "loginPassword" in html
-    assert "Frontend Preview" in html
 
 def test_register_page(client):
     """Test registration screen loads with full name, email, phone and passwords."""
@@ -61,7 +60,18 @@ def test_register_page(client):
     assert "regConfirmPassword" in html
 
 def test_dashboard_page(client):
-    """Test customer dashboard displays active booking, stats, and history."""
+    """Test customer dashboard displays active booking, stats, and history when logged in."""
+    # First verify unauthenticated redirect to login
+    anon_resp = client.get('/dashboard')
+    assert anon_resp.status_code == 302
+    assert '/login' in anon_resp.headers['Location']
+
+    # Now verify authenticated access
+    with client.session_transaction() as sess:
+        sess['user_id'] = 2
+        sess['user_name'] = 'Alexander Wright'
+        sess['role'] = 'customer'
+
     response = client.get('/dashboard')
     assert response.status_code == 200
     html = response.data.decode('utf-8')
