@@ -1,0 +1,12 @@
+# Core Web Framework
+Flask>=3.0.3,<4.0.0
+Werkzeug>=3.0.3,<4.0.0
+
+# Database Driver (Official MySQL Connector)
+mysql-connector-python>=9.0.0
+
+# Environment Variables Management
+python-dotenv>=1.0.1
+
+# Testing Framework
+pytest>=8.3.0
