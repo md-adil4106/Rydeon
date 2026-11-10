@@ -10,7 +10,7 @@
             <div>
                 <div class="d-flex align-items-center gap-2 mb-1">
                     <span class="badge bg-warning text-dark fw-bold px-2 py-1"><i class="bi bi-star-fill me-1"></i> {{ user.tier }}</span>
-                    <span class="text-white-50 small">Customer ID: RYD-USR-9482</span>
+                    <span class="text-white-50 small">Customer ID: RYD-USR-{{ user.id or '9482' }}</span>
                 </div>
                 <h2 class="text-white fw-bold mb-1">Welcome back, {{ user.name }}</h2>
                 <p class="text-white-50 mb-0 small"><i class="bi bi-envelope me-1"></i> {{ user.email }} &nbsp;|&nbsp; <i class="bi bi-telephone me-1"></i> {{ user.phone }}</p>
@@ -68,6 +68,7 @@
     </div>
 
     <!-- 2. Current Booking Section -->
+    {% if current_booking %}
     <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
         <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-2">
@@ -75,7 +76,7 @@
                 <h5 class="fw-bold mb-0">Current & Upcoming Booking</h5>
             </div>
             <span class="booking-status-badge badge-status-confirmed">
-                <i class="bi bi-check-circle-fill me-1"></i> {{ current_booking.status }}
+                <i class="bi bi-check-circle-fill me-1"></i> {{ current_booking.booking_status or current_booking.status or 'Confirmed' }}
             </span>
         </div>
 
@@ -92,15 +93,15 @@
                 <!-- Booking Details Details -->
                 <div class="col-lg-5 col-md-7">
                     <h4 class="fw-bold text-dark mb-1">{{ current_booking.vehicle_name }}</h4>
-                    <p class="text-muted small mb-3">Booking Ref: <span class="fw-semibold text-dark">{{ current_booking.booking_id }}</span></p>
+                    <p class="text-muted small mb-3">Booking Ref: <span class="fw-semibold text-dark">RYD-BK-{{ current_booking.booking_id }}</span> ({{ current_booking.registration_number or 'Certified' }})</p>
 
                     <div class="row g-2 text-secondary small">
                         <div class="col-sm-6">
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <i class="bi bi-calendar-event text-primary"></i>
                                 <div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">Pick-up</div>
-                                    <div class="fw-bold text-dark">{{ current_booking.pickup_date }}</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">Pick-up Date</div>
+                                    <div class="fw-bold text-dark">{{ current_booking.start_date or current_booking.pickup_date }}</div>
                                 </div>
                             </div>
                         </div>
@@ -108,15 +109,15 @@
                             <div class="d-flex align-items-center gap-2 mb-2">
                                 <i class="bi bi-calendar-check text-primary"></i>
                                 <div>
-                                    <div class="text-muted" style="font-size: 0.75rem;">Return</div>
-                                    <div class="fw-bold text-dark">{{ current_booking.return_date }}</div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">Return Date</div>
+                                    <div class="fw-bold text-dark">{{ current_booking.end_date or current_booking.return_date }}</div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="d-flex align-items-center gap-2">
                                 <i class="bi bi-geo-alt-fill text-primary"></i>
-                                <span>{{ current_booking.pickup_location }}</span>
+                                <span>{{ current_booking.pickup_location or 'Airport Terminal 1 Executive Hub' }}</span>
                             </div>
                         </div>
                     </div>
@@ -125,10 +126,10 @@
                 <!-- Price & Voucher Actions -->
                 <div class="col-lg-3 text-lg-end border-start-lg pt-3 pt-lg-0">
                     <div class="text-muted small">Total Cost ({{ current_booking.total_days }} Days)</div>
-                    <h3 class="text-primary fw-bold mb-1">${{ current_booking.total_amount }}</h3>
-                    <div class="text-muted small mb-3">Rate: ${{ current_booking.daily_rate }}/day</div>
+                    <h3 class="text-primary fw-bold mb-1">${{ "%.2f"|format(current_booking.total_amount|float) }}</h3>
+                    <div class="text-muted small mb-3">Rate: ${{ "%.2f"|format(current_booking.daily_rate|float) }}/day</div>
                     <div class="d-grid gap-2">
-                        <button class="btn btn-navy-rydeon btn-sm py-2" onclick="alert('Digital Voucher: Booking confirmed for Mercedes-Benz S-Class (Ref: CONF-983210). Terminal 1 Concierge keyless pickup.');">
+                        <button class="btn btn-navy-rydeon btn-sm py-2" onclick="alert('Digital Voucher: Booking confirmed for {{ current_booking.vehicle_name }}. Ref: {{ current_booking.transaction_reference or 'CONF-983210' }}');">
                             <i class="bi bi-file-earmark-arrow-down me-1"></i> Digital Voucher
                         </button>
                         <button class="btn btn-outline-secondary btn-sm" onclick="alert('Modify dates request submitted to concierge desk.');">
@@ -139,6 +140,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
     <!-- 3. Booking History Section -->
     <div class="card border-0 shadow-sm rounded-4 mb-4">
@@ -147,7 +149,7 @@
                 <span class="p-1 bg-secondary-subtle text-secondary rounded"><i class="bi bi-clock-history"></i></span>
                 <h5 class="fw-bold mb-0">Booking History</h5>
             </div>
-            <span class="text-muted small">Showing {{ history|length }} past completed trips</span>
+            <span class="text-muted small">Showing {{ history|length }} recorded trips</span>
         </div>
 
         <div class="card-body p-0">
@@ -167,24 +169,28 @@
                     <tbody>
                         {% for item in history %}
                         <tr>
-                            <td class="ps-4 fw-bold text-dark small">{{ item.booking_id }}</td>
+                            <td class="ps-4 fw-bold text-dark small">RYD-BK-{{ item.booking_id }}</td>
                             <td>
                                 <span class="fw-semibold text-dark">{{ item.vehicle_name }}</span>
-                                <div class="text-muted small">{{ item.pickup_location }}</div>
+                                <div class="text-muted small">{{ item.pickup_location or item.registration_number or 'Airport Terminal 1 Hub' }}</div>
                             </td>
-                            <td class="text-secondary small">{{ item.rental_period }}</td>
-                            <td class="text-secondary small">{{ item.duration }}</td>
-                            <td class="fw-bold text-dark">${{ item.total_amount }}</td>
+                            <td class="text-secondary small">{{ item.start_date ~ ' to ' ~ item.end_date if item.start_date else item.rental_period }}</td>
+                            <td class="text-secondary small">{{ item.total_days ~ ' Days' if item.total_days else item.duration }}</td>
+                            <td class="fw-bold text-dark">${{ "%.2f"|format(item.total_amount|float) }}</td>
                             <td>
                                 <span class="booking-status-badge badge-status-completed">
-                                    <i class="bi bi-check me-1"></i> {{ item.status }}
+                                    <i class="bi bi-check me-1"></i> {{ item.booking_status or item.status or 'Completed' }}
                                 </span>
                             </td>
                             <td class="pe-4 text-end">
-                                <button class="btn btn-outline-secondary btn-sm" onclick="alert('Receipt {{ item.booking_id }} downloaded successfully.');">
+                                <button class="btn btn-outline-secondary btn-sm" onclick="alert('Receipt RYD-BK-{{ item.booking_id }} downloaded successfully.');">
                                     <i class="bi bi-download"></i>
                                 </button>
                             </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted small">No past bookings found.</td>
                         </tr>
                         {% endfor %}
                     </tbody>

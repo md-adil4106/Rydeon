@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Database Connection Issue | Rydeon Vehicle Rental{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center min-vh-50 d-flex flex-column justify-content-center align-items-center">
+    <div class="p-4 bg-warning-subtle rounded-circle text-warning mb-3" style="width: 80px; height: 80px; display: inline-flex; align-items: center; justify-content: center;">
+        <i class="bi bi-database-slash fs-1 text-dark"></i>
+    </div>
+    <h1 class="display-6 fw-bold text-dark">Database Connection Unavailable</h1>
+    <p class="lead text-secondary max-w-600 mb-3">
+        The application is unable to reach the MySQL database server.
+    </p>
+    <div class="card p-3 bg-light border-0 max-w-600 text-start text-muted small mb-4">
+        <strong>Diagnostics Checklist:</strong>
+        <ul class="mb-0 mt-1 ps-3">
+            <li>Verify MySQL80 service is running via Windows Services (<code>Get-Service MySQL80</code>).</li>
+            <li>Confirm database credentials and port (3306) in your <code>.env</code> file.</li>
+            <li>Ensure the target database <code>vehicle_rental_system</code> is initialized via <code>python app/database/seed.py</code>.</li>
+        </ul>
+    </div>
+    <a href="{{ url_for('frontend.index') }}" class="btn btn-outline-rydeon px-4 py-2">
+        <i class="bi bi-arrow-clockwise me-1"></i> Retry Connection
+    </a>
+</div>
+{% endblock %}

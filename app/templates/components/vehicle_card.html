@@ -3,34 +3,34 @@
      data-name="{{ vehicle.name }}"
      data-category="{{ vehicle.category }}"
      data-price="{{ vehicle.price_per_day }}"
-     data-seats="{{ vehicle.seats }}"
+     data-seats="{{ vehicle.seating_capacity or vehicle.seats }}"
      data-fuel="{{ vehicle.fuel_type }}"
-     data-power="{{ vehicle.horsepower }}"
-     data-range="{{ vehicle.range_or_mileage }}"
-     data-tagline="{{ vehicle.tagline }}"
-     data-img="{{ vehicle.image_url }}"
+     data-power="{{ vehicle.horsepower or '450 HP' }}"
+     data-range="{{ vehicle.range_or_mileage or '320 mi range' }}"
+     data-tagline="{{ vehicle.description or vehicle.tagline }}"
+     data-img="{{ vehicle.image or vehicle.image_url }}"
      data-transmission="{{ vehicle.transmission }}"
-     data-features='{{ vehicle.features | tojson | forceescape }}'>
+     data-features='{{ (vehicle.features or ["All-Wheel Drive", "Adaptive Suspension", "Fast DC Charging", "Collision Shield", "Premium Audio"]) | tojson | forceescape }}'>
 
     <div class="vehicle-card">
         <!-- Vehicle Thumbnail & Floating Badges -->
         <div class="vehicle-img-wrapper">
-            <img src="{{ vehicle.image_url }}" alt="{{ vehicle.name }}" loading="lazy">
+            <img src="{{ vehicle.image or vehicle.image_url }}" alt="{{ vehicle.name }}" loading="lazy">
             <span class="badge-category">{{ vehicle.category }}</span>
             <div class="badge-price">
-                ${{ vehicle.price_per_day }}<span> / day</span>
+                ${{ "%.2f"|format(vehicle.price_per_day|float) }}<span> / day</span>
             </div>
         </div>
 
         <!-- Vehicle Info & Specs -->
         <div class="vehicle-body">
             <h5 class="vehicle-name">{{ vehicle.name }}</h5>
-            <p class="vehicle-tagline">{{ vehicle.tagline }}</p>
+            <p class="vehicle-tagline">{{ vehicle.description or vehicle.tagline }}</p>
 
             <div class="vehicle-specs">
                 <div class="spec-item" title="Capacity">
                     <i class="bi bi-people-fill"></i>
-                    <span>{{ vehicle.seats }} Seats</span>
+                    <span>{{ vehicle.seating_capacity or vehicle.seats }} Seats</span>
                 </div>
                 <div class="spec-item" title="Transmission">
                     <i class="bi bi-gear-wide-connected"></i>
@@ -51,15 +51,15 @@
                         data-id="{{ vehicle.id }}"
                         data-name="{{ vehicle.name }}"
                         data-category="{{ vehicle.category }}"
-                        data-price="{{ vehicle.price_per_day }}"
-                        data-seats="{{ vehicle.seats }}"
+                        data-price="{{ "%.2f"|format(vehicle.price_per_day|float) }}"
+                        data-seats="{{ vehicle.seating_capacity or vehicle.seats }}"
                         data-fuel="{{ vehicle.fuel_type }}"
-                        data-power="{{ vehicle.horsepower }}"
-                        data-range="{{ vehicle.range_or_mileage }}"
-                        data-tagline="{{ vehicle.tagline }}"
-                        data-img="{{ vehicle.image_url }}"
+                        data-power="{{ vehicle.horsepower or '450 HP' }}"
+                        data-range="{{ vehicle.range_or_mileage or '320 mi range' }}"
+                        data-tagline="{{ vehicle.description or vehicle.tagline }}"
+                        data-img="{{ vehicle.image or vehicle.image_url }}"
                         data-transmission="{{ vehicle.transmission }}"
-                        data-features='{{ vehicle.features | tojson | forceescape }}'>
+                        data-features='{{ (vehicle.features or ["All-Wheel Drive", "Adaptive Suspension", "Fast DC Charging", "Collision Shield", "Premium Audio"]) | tojson | forceescape }}'>
                     <i class="bi bi-info-circle me-1"></i> Details
                 </button>
                 <a href="{{ url_for('frontend.dashboard') }}" class="btn btn-primary-rydeon w-50 text-center">
