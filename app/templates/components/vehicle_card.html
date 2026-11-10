@@ -1,0 +1,71 @@
+<div class="col-lg-4 col-md-6 mb-4 catalogue-vehicle-item"
+     data-id="{{ vehicle.id }}"
+     data-name="{{ vehicle.name }}"
+     data-category="{{ vehicle.category }}"
+     data-price="{{ vehicle.price_per_day }}"
+     data-seats="{{ vehicle.seats }}"
+     data-fuel="{{ vehicle.fuel_type }}"
+     data-power="{{ vehicle.horsepower }}"
+     data-range="{{ vehicle.range_or_mileage }}"
+     data-tagline="{{ vehicle.tagline }}"
+     data-img="{{ vehicle.image_url }}"
+     data-transmission="{{ vehicle.transmission }}"
+     data-features='{{ vehicle.features | tojson | forceescape }}'>
+
+    <div class="vehicle-card">
+        <!-- Vehicle Thumbnail & Floating Badges -->
+        <div class="vehicle-img-wrapper">
+            <img src="{{ vehicle.image_url }}" alt="{{ vehicle.name }}" loading="lazy">
+            <span class="badge-category">{{ vehicle.category }}</span>
+            <div class="badge-price">
+                ${{ vehicle.price_per_day }}<span> / day</span>
+            </div>
+        </div>
+
+        <!-- Vehicle Info & Specs -->
+        <div class="vehicle-body">
+            <h5 class="vehicle-name">{{ vehicle.name }}</h5>
+            <p class="vehicle-tagline">{{ vehicle.tagline }}</p>
+
+            <div class="vehicle-specs">
+                <div class="spec-item" title="Capacity">
+                    <i class="bi bi-people-fill"></i>
+                    <span>{{ vehicle.seats }} Seats</span>
+                </div>
+                <div class="spec-item" title="Transmission">
+                    <i class="bi bi-gear-wide-connected"></i>
+                    <span>{{ vehicle.transmission }}</span>
+                </div>
+                <div class="spec-item" title="Powertrain">
+                    <i class="bi bi-fuel-pump-fill"></i>
+                    <span>{{ vehicle.fuel_type }}</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="vehicle-actions">
+                <button type="button" 
+                        class="btn btn-outline-rydeon w-50" 
+                        data-bs-toggle="modal" 
+                        data-bs-target="#vehicleDetailModal"
+                        data-id="{{ vehicle.id }}"
+                        data-name="{{ vehicle.name }}"
+                        data-category="{{ vehicle.category }}"
+                        data-price="{{ vehicle.price_per_day }}"
+                        data-seats="{{ vehicle.seats }}"
+                        data-fuel="{{ vehicle.fuel_type }}"
+                        data-power="{{ vehicle.horsepower }}"
+                        data-range="{{ vehicle.range_or_mileage }}"
+                        data-tagline="{{ vehicle.tagline }}"
+                        data-img="{{ vehicle.image_url }}"
+                        data-transmission="{{ vehicle.transmission }}"
+                        data-features='{{ vehicle.features | tojson | forceescape }}'>
+                    <i class="bi bi-info-circle me-1"></i> Details
+                </button>
+                <a href="{{ url_for('frontend.dashboard') }}" class="btn btn-primary-rydeon w-50 text-center">
+                    Reserve
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

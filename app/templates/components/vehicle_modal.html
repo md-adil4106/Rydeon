@@ -1,0 +1,97 @@
+<!-- Reusable Vehicle Details Modal -->
+<div class="modal fade" id="vehicleDetailModal" tabindex="-1" aria-labelledby="vehicleDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <!-- Modal Header with Image Banner -->
+            <div class="position-relative" style="height: 280px; background-color: #0B132B;">
+                <img id="modalVehicleImg" src="" alt="Vehicle preview" class="w-100 h-100 object-fit-cover">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 p-2 bg-dark bg-opacity-50 rounded-circle" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="position-absolute bottom-0 start-0 p-3 w-100" style="background: linear-gradient(180deg, transparent 0%, rgba(11, 19, 43, 0.95) 100%);">
+                    <span id="modalVehicleCategory" class="badge bg-primary px-3 py-1 text-uppercase fw-bold mb-1">Category</span>
+                    <h3 id="modalVehicleName" class="text-white fw-bold mb-0">Vehicle Name</h3>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body p-4">
+                <p id="modalVehicleTagline" class="text-secondary lead fs-6 mb-4">Tagline description</p>
+
+                <!-- Key Specifications Grid -->
+                <h6 class="fw-bold text-uppercase text-secondary small mb-3">Vehicle Specifications</h6>
+                <div class="row g-2 mb-4 text-center">
+                    <div class="col-4 col-md-2">
+                        <div class="p-2 border rounded-3 bg-light">
+                            <i class="bi bi-lightning-charge-fill text-primary fs-5"></i>
+                            <div class="small text-muted mt-1">Power</div>
+                            <div id="modalVehiclePower" class="fw-bold small text-dark">-</div>
+                        </div>
+                    </div>
+                    <div class="col-4 col-md-2">
+                        <div class="p-2 border rounded-3 bg-light">
+                            <i class="bi bi-gear-wide-connected text-primary fs-5"></i>
+                            <div class="small text-muted mt-1">Gearbox</div>
+                            <div id="modalVehicleTransmission" class="fw-bold small text-dark">-</div>
+                        </div>
+                    </div>
+                    <div class="col-4 col-md-2">
+                        <div class="p-2 border rounded-3 bg-light">
+                            <i class="bi bi-fuel-pump-fill text-primary fs-5"></i>
+                            <div class="small text-muted mt-1">Powertrain</div>
+                            <div id="modalVehicleFuel" class="fw-bold small text-dark">-</div>
+                        </div>
+                    </div>
+                    <div class="col-4 col-md-2">
+                        <div class="p-2 border rounded-3 bg-light">
+                            <i class="bi bi-people-fill text-primary fs-5"></i>
+                            <div class="small text-muted mt-1">Capacity</div>
+                            <div id="modalVehicleSeats" class="fw-bold small text-dark">-</div>
+                        </div>
+                    </div>
+                    <div class="col-4 col-md-4">
+                        <div class="p-2 border rounded-3 bg-light">
+                            <i class="bi bi-speedometer text-primary fs-5"></i>
+                            <div class="small text-muted mt-1">Efficiency / Range</div>
+                            <div id="modalVehicleRange" class="fw-bold small text-dark">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features & Inclusions -->
+                <h6 class="fw-bold text-uppercase text-secondary small mb-2">Equipped Technology & Comfort</h6>
+                <div id="modalVehicleFeatures" class="row g-2 mb-4">
+                    <!-- Populated via JS -->
+                </div>
+
+                <div class="p-3 bg-light rounded-3 border mb-3">
+                    <div class="row g-2 text-secondary small">
+                        <div class="col-md-6 d-flex align-items-center gap-2">
+                            <i class="bi bi-shield-fill-check text-success"></i>
+                            <span>Comprehensive Collision Coverage included</span>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center gap-2">
+                            <i class="bi bi-clock-history text-success"></i>
+                            <span>Free cancellation up to 24 hours prior</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer with Price & Reservation CTA -->
+            <div class="modal-footer bg-light px-4 py-3 d-flex justify-content-between align-items-center border-top">
+                <div>
+                    <span class="text-muted small">Daily Rental Rate</span>
+                    <div class="d-flex align-items-baseline gap-1">
+                        <h3 id="modalVehiclePrice" class="text-primary fw-bold mb-0">$0</h3>
+                        <span class="text-muted small">/ day</span>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <a href="{{ url_for('frontend.dashboard') }}" class="btn btn-primary-rydeon">
+                        <i class="bi bi-calendar-check me-1"></i> Proceed to Reserve
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

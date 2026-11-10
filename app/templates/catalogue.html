@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Fleet Catalogue | Rydeon Vehicle Rental{% endblock %}
+
+{% block content %}
+<!-- Catalogue Header Banner -->
+<section class="py-4 bg-white border-bottom">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb small mb-1">
+                        <li class="breadcrumb-item"><a href="{{ url_for('frontend.index') }}">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Fleet Catalogue</li>
+                    </ol>
+                </nav>
+                <h2 class="fw-bold mb-1">Premier Vehicle Fleet</h2>
+                <p class="text-muted mb-0 small">Select from our hand-curated collection of high-performance and luxury vehicles.</p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary px-3 py-2 fs-6 fw-bold">
+                    <span id="visibleVehicleCount">{{ vehicles|length }}</span> Vehicles Available
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filter & Catalogue Content -->
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- Left Filter Sidebar -->
+        <div class="col-lg-3">
+            <div class="filter-card sticky-top" style="top: 85px;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">Filter Fleet</h5>
+                    <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none text-muted" onclick="location.href='{{ url_for('frontend.catalogue') }}'">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </button>
+                </div>
+
+                <!-- 1. Keyword Search -->
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Search Model</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-muted border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" id="searchVehicles" class="form-control border-start-0" placeholder="e.g. Porsche, S-Class...">
+                    </div>
+                </div>
+
+                <!-- 2. Category Filter Pills -->
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-uppercase text-secondary mb-2">Category</label>
+                    <div class="filter-category-pills">
+                        <button type="button" class="filter-pill active" data-category="all">All</button>
+                        <button type="button" class="filter-pill" data-category="luxury">Luxury</button>
+                        <button type="button" class="filter-pill" data-category="electric">Electric</button>
+                        <button type="button" class="filter-pill" data-category="sports">Sports</button>
+                        <button type="button" class="filter-pill" data-category="suv">SUV</button>
+                    </div>
+                </div>
+
+                <!-- 3. Maximum Price Range Slider -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label small fw-bold text-uppercase text-secondary mb-0">Max Daily Rate</label>
+                        <span id="priceDisplayValue" class="fw-bold text-primary small">$250</span>
+                    </div>
+                    <input type="range" class="form-range" id="priceRangeSlider" min="100" max="250" step="10" value="250">
+                    <div class="d-flex justify-content-between text-muted" style="font-size: 0.75rem;">
+                        <span>$100</span>
+                        <span>$250</span>
+                    </div>
+                </div>
+
+                <!-- 4. Seating Capacity -->
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Seating Capacity</label>
+                    <select class="form-select" id="seatsFilter">
+                        <option value="all">Any Seating</option>
+                        <option value="4">4 Passengers</option>
+                        <option value="5">5 Passengers</option>
+                        <option value="7">7 Passengers</option>
+                    </select>
+                </div>
+
+                <!-- 5. Powertrain / Fuel -->
+                <div class="mb-2">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Powertrain</label>
+                    <select class="form-select" id="fuelFilter">
+                        <option value="all">All Powertrains</option>
+                        <option value="electric">100% Electric</option>
+                        <option value="hybrid">Hybrid / Plug-in</option>
+                        <option value="gasoline">Gasoline / V8</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Vehicle Cards Grid -->
+        <div class="col-lg-9">
+            <!-- Vehicles Grid Row -->
+            <div class="row" id="catalogueGrid">
+                {% for vehicle in vehicles %}
+                    {% include 'components/vehicle_card.html' %}
+                {% endfor %}
+            </div>
+
+            <!-- Empty Results State (Hidden by default, shown by JS when 0 matches) -->
+            <div id="noResultsState" class="text-center py-5 bg-white rounded-4 border p-4" style="display: none;">
+                <div class="text-muted mb-3"><i class="bi bi-car-front fs-1"></i></div>
+                <h4 class="fw-bold text-dark">No Vehicles Match Your Filters</h4>
+                <p class="text-muted small max-w-500 mx-auto mb-4">Try adjusting your price range, clearing your search query, or selecting a different vehicle category.</p>
+                <button type="button" class="btn btn-outline-rydeon" onclick="location.href='{{ url_for('frontend.catalogue') }}'">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reset All Filters
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reusable Vehicle Details Modal -->
+{% include 'components/vehicle_modal.html' %}
+{% endblock %}

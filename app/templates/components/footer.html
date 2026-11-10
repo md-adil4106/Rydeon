@@ -1,0 +1,77 @@
+<footer class="footer-rydeon">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Brand Column -->
+            <div class="col-lg-4 col-md-6">
+                <a class="brand-logo text-decoration-none mb-3 d-inline-flex" href="{{ url_for('frontend.index') }}">
+                    <div class="brand-badge">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <span>RYDEON</span>
+                </a>
+                <p class="small text-secondary pe-lg-4">
+                    Rydeon delivers executive mobility solutions, performance supercars, and premium family SUVs. Designed with clear pricing, immaculate vehicles, and round-the-clock roadside assistance.
+                </p>
+                <div class="d-flex gap-3 mt-3">
+                    <span class="badge bg-secondary-subtle text-secondary border px-2 py-1"><i class="bi bi-shield-check me-1"></i> Fully Insured Fleet</span>
+                    <span class="badge bg-secondary-subtle text-secondary border px-2 py-1"><i class="bi bi-clock-history me-1"></i> 24/7 Concierge</span>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="col-lg-2 col-md-6 col-6">
+                <h5>Navigation</h5>
+                <ul>
+                    <li><a href="{{ url_for('frontend.index') }}">Home</a></li>
+                    <li><a href="{{ url_for('frontend.catalogue') }}">Fleet Catalogue</a></li>
+                    <li><a href="{{ url_for('frontend.dashboard') }}">Customer Dashboard</a></li>
+                    <li><a href="{{ url_for('frontend.login') }}">Account Sign In</a></li>
+                    <li><a href="{{ url_for('frontend.register') }}">Create Account</a></li>
+                </ul>
+            </div>
+
+            <!-- Categories -->
+            <div class="col-lg-3 col-md-6 col-6">
+                <h5>Categories</h5>
+                <ul>
+                    <li><a href="{{ url_for('frontend.catalogue') }}?category=luxury">Executive Luxury</a></li>
+                    <li><a href="{{ url_for('frontend.catalogue') }}?category=electric">100% Electric Fleet</a></li>
+                    <li><a href="{{ url_for('frontend.catalogue') }}?category=sports">Motorsport & Sports</a></li>
+                    <li><a href="{{ url_for('frontend.catalogue') }}?category=suv">Premium All-Terrain SUVs</a></li>
+                </ul>
+            </div>
+
+            <!-- Support & Contact -->
+            <div class="col-lg-3 col-md-6">
+                <h5>Concierge Support</h5>
+                <ul class="text-secondary small">
+                    <li class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-geo-alt text-primary"></i>
+                        <span>Executive Mobility Hub, Terminal 1</span>
+                    </li>
+                    <li class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-telephone text-primary"></i>
+                        <span>+1 (800) 555-RYDE (24/7)</span>
+                    </li>
+                    <li class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-envelope text-primary"></i>
+                        <span>support@rydeon-rentals.com</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <p class="mb-0 text-muted small">
+                &copy; 2026 Rydeon Mobility Inc. All rights reserved. Built for University Mini-Project Demonstration.
+            </p>
+            <div class="d-flex gap-3 small text-muted">
+                <span>Frontend Prototype Preview</span>
+                <span>•</span>
+                <span>Terms of Rental</span>
+                <span>•</span>
+                <span>Privacy Notice</span>
+            </div>
+        </div>
+    </div>
+</footer>

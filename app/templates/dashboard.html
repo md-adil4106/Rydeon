@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Dashboard | Rydeon Vehicle Rental{% endblock %}
+
+{% block content %}
+<!-- Dashboard Hero & Welcome Bar -->
+<section class="dashboard-hero">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="badge bg-warning text-dark fw-bold px-2 py-1"><i class="bi bi-star-fill me-1"></i> {{ user.tier }}</span>
+                    <span class="text-white-50 small">Customer ID: RYD-USR-9482</span>
+                </div>
+                <h2 class="text-white fw-bold mb-1">Welcome back, {{ user.name }}</h2>
+                <p class="text-white-50 mb-0 small"><i class="bi bi-envelope me-1"></i> {{ user.email }} &nbsp;|&nbsp; <i class="bi bi-telephone me-1"></i> {{ user.phone }}</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('frontend.catalogue') }}" class="btn btn-primary-rydeon">
+                    <i class="bi bi-plus-circle me-1"></i> Book New Vehicle
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Dashboard Main Content Container -->
+<div class="container py-4">
+
+    <!-- 1. Quick Stats Overview -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-3 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Active Rentals</div>
+                    <h3 class="fw-bold mb-0 text-dark">{{ user.stats.active_rentals }}</h3>
+                </div>
+                <div class="stat-icon"><i class="bi bi-car-front-fill"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Completed Trips</div>
+                    <h3 class="fw-bold mb-0 text-dark">{{ user.stats.completed_rentals }}</h3>
+                </div>
+                <div class="stat-icon"><i class="bi bi-check2-circle"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Total Miles</div>
+                    <h3 class="fw-bold mb-0 text-dark">{{ user.stats.miles_driven }}</h3>
+                </div>
+                <div class="stat-icon"><i class="bi bi-speedometer2"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-6">
+            <div class="stat-card">
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Loyalty Points</div>
+                    <h3 class="fw-bold mb-0 text-dark">{{ user.stats.reward_points }}</h3>
+                </div>
+                <div class="stat-icon"><i class="bi bi-award-fill"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Current Booking Section -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <span class="p-1 bg-primary-subtle text-primary rounded"><i class="bi bi-broadcast"></i></span>
+                <h5 class="fw-bold mb-0">Current & Upcoming Booking</h5>
+            </div>
+            <span class="booking-status-badge badge-status-confirmed">
+                <i class="bi bi-check-circle-fill me-1"></i> {{ current_booking.status }}
+            </span>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="row align-items-center g-4">
+                <!-- Vehicle Image -->
+                <div class="col-lg-4 col-md-5">
+                    <div class="rounded-3 overflow-hidden shadow-sm position-relative" style="height: 190px;">
+                        <img src="{{ current_booking.image_url }}" alt="{{ current_booking.vehicle_name }}" class="w-100 h-100 object-fit-cover">
+                        <span class="position-absolute top-0 start-0 m-2 badge bg-dark bg-opacity-75 text-uppercase">{{ current_booking.vehicle_category }}</span>
+                    </div>
+                </div>
+
+                <!-- Booking Details Details -->
+                <div class="col-lg-5 col-md-7">
+                    <h4 class="fw-bold text-dark mb-1">{{ current_booking.vehicle_name }}</h4>
+                    <p class="text-muted small mb-3">Booking Ref: <span class="fw-semibold text-dark">{{ current_booking.booking_id }}</span></p>
+
+                    <div class="row g-2 text-secondary small">
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-calendar-event text-primary"></i>
+                                <div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">Pick-up</div>
+                                    <div class="fw-bold text-dark">{{ current_booking.pickup_date }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="bi bi-calendar-check text-primary"></i>
+                                <div>
+                                    <div class="text-muted" style="font-size: 0.75rem;">Return</div>
+                                    <div class="fw-bold text-dark">{{ current_booking.return_date }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-geo-alt-fill text-primary"></i>
+                                <span>{{ current_booking.pickup_location }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price & Voucher Actions -->
+                <div class="col-lg-3 text-lg-end border-start-lg pt-3 pt-lg-0">
+                    <div class="text-muted small">Total Cost ({{ current_booking.total_days }} Days)</div>
+                    <h3 class="text-primary fw-bold mb-1">${{ current_booking.total_amount }}</h3>
+                    <div class="text-muted small mb-3">Rate: ${{ current_booking.daily_rate }}/day</div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-navy-rydeon btn-sm py-2" onclick="alert('Digital Voucher: Booking confirmed for Mercedes-Benz S-Class (Ref: CONF-983210). Terminal 1 Concierge keyless pickup.');">
+                            <i class="bi bi-file-earmark-arrow-down me-1"></i> Digital Voucher
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="alert('Modify dates request submitted to concierge desk.');">
+                            Modify Schedule
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Booking History Section -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <span class="p-1 bg-secondary-subtle text-secondary rounded"><i class="bi bi-clock-history"></i></span>
+                <h5 class="fw-bold mb-0">Booking History</h5>
+            </div>
+            <span class="text-muted small">Showing {{ history|length }} past completed trips</span>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-uppercase text-secondary">
+                        <tr>
+                            <th class="ps-4">Booking ID</th>
+                            <th>Vehicle</th>
+                            <th>Rental Period</th>
+                            <th>Duration</th>
+                            <th>Total Billed</th>
+                            <th>Status</th>
+                            <th class="pe-4 text-end">Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in history %}
+                        <tr>
+                            <td class="ps-4 fw-bold text-dark small">{{ item.booking_id }}</td>
+                            <td>
+                                <span class="fw-semibold text-dark">{{ item.vehicle_name }}</span>
+                                <div class="text-muted small">{{ item.pickup_location }}</div>
+                            </td>
+                            <td class="text-secondary small">{{ item.rental_period }}</td>
+                            <td class="text-secondary small">{{ item.duration }}</td>
+                            <td class="fw-bold text-dark">${{ item.total_amount }}</td>
+                            <td>
+                                <span class="booking-status-badge badge-status-completed">
+                                    <i class="bi bi-check me-1"></i> {{ item.status }}
+                                </span>
+                            </td>
+                            <td class="pe-4 text-end">
+                                <button class="btn btn-outline-secondary btn-sm" onclick="alert('Receipt {{ item.booking_id }} downloaded successfully.');">
+                                    <i class="bi bi-download"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Available Vehicle Preview (Quick Recommendations) -->
+    <div class="mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="fw-bold mb-0">Recommended For Your Next Trip</h5>
+                <p class="text-muted small mb-0">Popular premium vehicles ready for immediate reservation.</p>
+            </div>
+            <a href="{{ url_for('frontend.catalogue') }}" class="btn btn-outline-rydeon btn-sm">
+                Explore All Fleet <i class="bi bi-chevron-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row">
+            {% for vehicle in recommended_vehicles %}
+                {% include 'components/vehicle_card.html' %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Reusable Vehicle Details Modal -->
+{% include 'components/vehicle_modal.html' %}
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In | Rydeon Vehicle Rental{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <!-- Logo & Header -->
+        <div class="text-center mb-4">
+            <a class="brand-logo justify-content-center text-decoration-none mb-2 d-inline-flex" href="{{ url_for('frontend.index') }}">
+                <div class="brand-badge">
+                    <i class="bi bi-speedometer2"></i>
+                </div>
+                <span class="text-dark">RYDEON</span>
+            </a>
+            <h4 class="fw-bold mt-2 mb-1">Welcome Back</h4>
+            <p class="text-muted small">Sign in to manage your vehicle bookings and profile</p>
+        </div>
+
+        <!-- Prototype Notice -->
+        <div class="prototype-notice">
+            <i class="bi bi-info-circle-fill flex-shrink-0"></i>
+            <div><strong>Frontend Preview:</strong> Authentication logic is staged for Phase 3. Submitting this form will navigate directly to the Customer Dashboard.</div>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" method="GET" action="{{ url_for('frontend.dashboard') }}">
+            <!-- Email -->
+            <div class="mb-3">
+                <label for="loginEmail" class="form-label small fw-bold text-uppercase text-secondary">Email Address</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+                    <input type="email" class="form-control border-start-0" id="loginEmail" placeholder="alexander.wright@example.com" value="alexander.wright@example.com" required>
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label for="loginPassword" class="form-label small fw-bold text-uppercase text-secondary mb-0">Password</label>
+                    <a href="#" class="small text-decoration-none text-primary" onclick="alert('Password reset workflow will be enabled in Phase 3 backend.'); return false;">Forgot?</a>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+                    <input type="password" class="form-control border-start-0" id="loginPassword" placeholder="••••••••••••" value="Password123!" required>
+                </div>
+            </div>
+
+            <!-- Remember Me -->
+            <div class="mb-4 form-check">
+                <input type="checkbox" class="form-check-input" id="rememberMe" checked>
+                <label class="form-check-label small text-muted" for="rememberMe">Remember my login credentials on this device</label>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-navy-rydeon w-100 py-2 fw-bold">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Account
+            </button>
+        </form>
+
+        <!-- Register Link -->
+        <div class="text-center mt-4 pt-3 border-top">
+            <span class="text-muted small">Don't have a Rydeon account?</span>
+            <a href="{{ url_for('frontend.register') }}" class="small fw-bold ms-1 text-primary">Join & Register</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

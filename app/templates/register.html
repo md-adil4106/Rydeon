@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account | Rydeon Vehicle Rental{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card" style="max-width: 520px;">
+        <!-- Logo & Header -->
+        <div class="text-center mb-4">
+            <a class="brand-logo justify-content-center text-decoration-none mb-2 d-inline-flex" href="{{ url_for('frontend.index') }}">
+                <div class="brand-badge">
+                    <i class="bi bi-speedometer2"></i>
+                </div>
+                <span class="text-dark">RYDEON</span>
+            </a>
+            <h4 class="fw-bold mt-2 mb-1">Create Your Account</h4>
+            <p class="text-muted small">Access exclusive rates, rapid reservations, and booking management</p>
+        </div>
+
+        <!-- Prototype Notice -->
+        <div class="prototype-notice">
+            <i class="bi bi-info-circle-fill flex-shrink-0"></i>
+            <div><strong>Frontend Preview:</strong> Account registration validation is handled client-side. Database persistence will be connected in Phase 3.</div>
+        </div>
+
+        <!-- Registration Form -->
+        <form id="registrationForm" novalidate>
+            <!-- Full Name -->
+            <div class="mb-3">
+                <label for="regFullName" class="form-label small fw-bold text-uppercase text-secondary">Full Name</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-person"></i></span>
+                    <input type="text" class="form-control border-start-0" id="regFullName" placeholder="Alexander Wright" required>
+                </div>
+            </div>
+
+            <!-- Email & Phone in 2 Columns -->
+            <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                    <label for="regEmail" class="form-label small fw-bold text-uppercase text-secondary">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+                        <input type="email" class="form-control border-start-0" id="regEmail" placeholder="alex@example.com" required>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label for="regPhone" class="form-label small fw-bold text-uppercase text-secondary">Phone Number</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-telephone"></i></span>
+                        <input type="tel" class="form-control border-start-0" id="regPhone" placeholder="+1 (555) 019-2834" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password & Confirm Password in 2 Columns -->
+            <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                    <label for="regPassword" class="form-label small fw-bold text-uppercase text-secondary">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+                        <input type="password" class="form-control border-start-0" id="regPassword" placeholder="Minimum 8 chars" required minlength="8">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label for="regConfirmPassword" class="form-label small fw-bold text-uppercase text-secondary">Confirm Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-shield-lock"></i></span>
+                        <input type="password" class="form-control border-start-0" id="regConfirmPassword" placeholder="Repeat password" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password Match Error Alert -->
+            <div id="passwordFeedback" class="alert alert-danger py-1 px-3 small mb-3" style="display: none;">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i> Passwords do not match. Please verify both fields.
+            </div>
+
+            <!-- Terms Agreement -->
+            <div class="mb-4 form-check">
+                <input type="checkbox" class="form-check-input" id="termsCheck" required checked>
+                <label class="form-check-label small text-muted" for="termsCheck">
+                    I agree to the <a href="#" class="text-primary text-decoration-none" onclick="alert('Terms of Service terms will be finalized with legal compliance.'); return false;">Terms of Service</a> and Rental Agreement policies.
+                </label>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-navy-rydeon w-100 py-2 fw-bold">
+                <i class="bi bi-person-plus-fill me-1"></i> Complete Registration
+            </button>
+        </form>
+
+        <!-- Login Link -->
+        <div class="text-center mt-4 pt-3 border-top">
+            <span class="text-muted small">Already possess a Rydeon profile?</span>
+            <a href="{{ url_for('frontend.login') }}" class="small fw-bold ms-1 text-primary">Sign In</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
