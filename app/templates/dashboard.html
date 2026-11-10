@@ -129,12 +129,12 @@
                     <h3 class="text-primary fw-bold mb-1">${{ "%.2f"|format(current_booking.total_amount|float) }}</h3>
                     <div class="text-muted small mb-3">Rate: ${{ "%.2f"|format(current_booking.daily_rate|float) }}/day</div>
                     <div class="d-grid gap-2">
-                        <button class="btn btn-navy-rydeon btn-sm py-2" onclick="alert('Digital Voucher: Booking confirmed for {{ current_booking.vehicle_name }}. Ref: {{ current_booking.transaction_reference or 'CONF-983210' }}');">
-                            <i class="bi bi-file-earmark-arrow-down me-1"></i> Digital Voucher
-                        </button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="alert('Modify dates request submitted to concierge desk.');">
-                            Modify Schedule
-                        </button>
+                        <a href="{{ url_for('booking.confirmation', booking_id=current_booking.booking_id) }}" class="btn btn-navy-rydeon btn-sm py-2">
+                            <i class="bi bi-file-earmark-arrow-down me-1"></i> Official Rental Voucher
+                        </a>
+                        <a href="{{ url_for('booking.my_bookings') }}" class="btn btn-outline-secondary btn-sm">
+                            Manage All Reservations
+                        </a>
                     </div>
                 </div>
             </div>

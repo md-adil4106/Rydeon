@@ -64,8 +64,13 @@
                             </li>
                             {% endif %}
                             <li>
+                                <a class="dropdown-item small" href="{{ url_for('booking.my_bookings') }}">
+                                    <i class="bi bi-calendar-check me-2 text-primary"></i> My Bookings
+                                </a>
+                            </li>
+                            <li>
                                 <a class="dropdown-item small" href="{{ url_for('frontend.dashboard') }}">
-                                    <i class="bi bi-calendar-check me-2 text-primary"></i> Customer Dashboard
+                                    <i class="bi bi-speedometer2 me-2 text-primary"></i> Customer Dashboard
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider"></li>

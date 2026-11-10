@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Booking Confirmed - {{ booking.booking_reference }} | Rydeon{% endblock %}
+
+{% block extra_head %}
+<style>
+@media print {
+    .navbar-rydeon, .footer-rydeon, .no-print, .alert {
+        display: none !important;
+    }
+    body {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+    }
+    .card {
+        border: 1px solid #CCCCCC !important;
+        box-shadow: none !important;
+    }
+    .print-only {
+        display: block !important;
+    }
+}
+.print-only {
+    display: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Success Banner -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 no-print">
+        <div class="p-4 p-md-5 text-center text-white" style="background: linear-gradient(135deg, #0B132B 0%, #1D4ED8 100%);">
+            <div class="mx-auto mb-3 bg-white text-success rounded-circle d-inline-flex p-3 shadow" style="width: 72px; height: 72px; align-items: center; justify-content: center;">
+                <i class="bi bi-check-lg fs-1"></i>
+            </div>
+            <h2 class="fw-bold mb-1">Reservation Confirmed!</h2>
+            <p class="text-white-50 lead fs-6 mb-3">Your vehicle is reserved and scheduled for executive handover.</p>
+            <div class="d-inline-flex align-items-center gap-2 bg-white bg-opacity-10 border border-white border-opacity-25 px-4 py-2 rounded-pill font-monospace fs-5">
+                <span>Reference:</span>
+                <strong class="text-warning">{{ booking.booking_reference }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Official Printable Rental Voucher -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-4" id="printableVoucher">
+        <!-- Voucher Header -->
+        <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4">
+            <div>
+                <div class="brand-logo text-dark mb-1 d-inline-flex align-items-center gap-2">
+                    <div class="brand-badge bg-primary text-white p-2 rounded">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <span class="fw-bold fs-4">RYDEON</span>
+                </div>
+                <div class="text-muted small">Executive Vehicle Rental Voucher & Reservation Contract</div>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-success-subtle text-success border px-3 py-2 fs-6 fw-bold text-uppercase">
+                    <i class="bi bi-check-circle-fill me-1"></i> {{ booking.booking_status }}
+                </span>
+                <div class="text-muted small mt-1 font-monospace">{{ booking.booking_reference }}</div>
+            </div>
+        </div>
+
+        <!-- Renter & Vehicle 2-Column Specs -->
+        <div class="row g-4 mb-4">
+            <!-- Customer Details -->
+            <div class="col-md-6 border-end-md">
+                <h6 class="text-uppercase fw-bold text-muted small mb-2">Renter Information</h6>
+                <h5 class="fw-bold text-dark mb-1">{{ booking.customer_name }}</h5>
+                <div class="text-secondary small mb-1"><i class="bi bi-envelope me-1"></i> {{ booking.customer_email }}</div>
+                <div class="text-secondary small mb-1"><i class="bi bi-telephone me-1"></i> {{ booking.customer_phone }}</div>
+                <div class="text-muted small mt-2">Customer ID: RYD-USR-{{ booking.customer_id }}</div>
+            </div>
+
+            <!-- Vehicle Summary -->
+            <div class="col-md-6">
+                <h6 class="text-uppercase fw-bold text-muted small mb-2">Reserved Vehicle Details</h6>
+                <h5 class="fw-bold text-dark mb-1">{{ booking.vehicle_name }}</h5>
+                <div class="text-secondary small mb-1">Category: <span class="badge bg-light text-dark border">{{ booking.vehicle_category }}</span></div>
+                <div class="text-secondary small mb-1">Registration: <span class="font-monospace fw-bold text-primary">{{ booking.registration_number }}</span></div>
+                <div class="text-muted small">{{ booking.seating_capacity }} Passenger Capacity &bull; {{ booking.transmission }} &bull; {{ booking.fuel_type }}</div>
+            </div>
+        </div>
+
+        <!-- Rental Schedule Timeline Card -->
+        <div class="p-3 bg-light rounded-3 border mb-4">
+            <div class="row text-center g-3">
+                <div class="col-md-4">
+                    <div class="text-muted small text-uppercase">Pick-up Date & Time</div>
+                    <div class="fw-bold fs-6 text-dark mt-1">{{ booking.start_date }}</div>
+                    <div class="small text-muted">10:00 AM (Terminal 1 Executive Hub)</div>
+                </div>
+                <div class="col-md-4 border-start-md border-end-md">
+                    <div class="text-muted small text-uppercase">Rental Duration</div>
+                    <div class="fw-bold fs-5 text-primary mt-1">{{ booking.total_days }} Full Days</div>
+                    <div class="small text-muted">${{ "%.2f"|format(booking.daily_rate|float) }} / day rate</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-muted small text-uppercase">Return Date & Time</div>
+                    <div class="fw-bold fs-6 text-dark mt-1">{{ booking.end_date }}</div>
+                    <div class="small text-muted">10:00 AM (Terminal 1 Executive Hub)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing & Payment Statement -->
+        <div class="table-responsive mb-4">
+            <table class="table align-middle mb-0">
+                <thead class="table-light small text-uppercase text-secondary">
+                    <tr>
+                        <th>Billing Item Description</th>
+                        <th class="text-center">Rate</th>
+                        <th class="text-center">Units</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">{{ booking.vehicle_name }} Daily Rental</div>
+                            <div class="small text-muted">Includes unlimited mileage & 24/7 roadside mechanical concierge</div>
+                        </td>
+                        <td class="text-center">${{ "%.2f"|format(booking.daily_rate|float) }}</td>
+                        <td class="text-center">{{ booking.total_days }} Days</td>
+                        <td class="text-end fw-bold">${{ "%.2f"|format(booking.total_amount|float) }}</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">Comprehensive Collision Coverage (CDW)</div>
+                            <div class="small text-muted">Zero-deductible waiver policy applied</div>
+                        </td>
+                        <td class="text-center">$0.00</td>
+                        <td class="text-center">Included</td>
+                        <td class="text-end text-success fw-bold">FREE</td>
+                    </tr>
+                    <tr class="table-light">
+                        <td colspan="3" class="text-end fw-bold text-dark fs-6">Total Billed & Paid:</td>
+                        <td class="text-end fw-bold text-primary fs-5">${{ "%.2f"|format(booking.total_amount|float) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Transaction Details -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center small text-muted border-top pt-3">
+            <div>
+                Payment Reference: <span class="font-monospace text-dark">{{ booking.transaction_reference or 'CONF-PAID' }}</span> &bull; 
+                Method: <span class="text-dark">{{ booking.payment_method or 'Card' }}</span>
+            </div>
+            <div>Status: <span class="badge bg-success-subtle text-success border">PAID IN FULL</span></div>
+        </div>
+    </div>
+
+    <!-- Document Verification Section -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 no-print">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <span class="p-2 bg-primary-subtle text-primary rounded-circle"><i class="bi bi-file-earmark-lock fs-5"></i></span>
+                <div>
+                    <h5 class="fw-bold mb-0">Driver Verification Documents</h5>
+                    <div class="text-muted small">Upload your driving license before vehicle collection.</div>
+                </div>
+            </div>
+        </div>
+
+        {% if documents %}
+            <div class="table-responsive mb-3">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-uppercase">
+                        <tr>
+                            <th>Document Type</th>
+                            <th>File</th>
+                            <th>Uploaded At</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in documents %}
+                        <tr>
+                            <td class="fw-semibold text-dark text-capitalize">{{ doc.document_type.replace('_', ' ') }}</td>
+                            <td><span class="font-monospace small text-muted">{{ doc.file_path.split('/')[-1] }}</span></td>
+                            <td class="small text-secondary">{{ doc.uploaded_at }}</td>
+                            <td>
+                                {% if doc.verification_status == 'verified' %}
+                                    <span class="badge bg-success-subtle text-success border"><i class="bi bi-check-circle me-1"></i> Verified</span>
+                                {% elif doc.verification_status == 'rejected' %}
+                                    <span class="badge bg-danger-subtle text-danger border"><i class="bi bi-x-circle me-1"></i> Rejected</span>
+                                {% else %}
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border"><i class="bi bi-clock me-1"></i> Pending Verification</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+                <i class="bi bi-info-circle-fill"></i>
+                <span>No driver document uploaded yet. Please upload your driving license below to ensure instant digital key handover.</span>
+            </div>
+        {% endif %}
+
+        <!-- Quick Upload Form -->
+        <form method="POST" action="{{ url_for('booking.upload_document', booking_id=booking.booking_id) }}" enctype="multipart/form-data" class="row g-2 align-items-center">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="col-md-4">
+                <select class="form-select form-select-sm" name="document_type">
+                    <option value="drivers_license">Driver's License (Front & Back)</option>
+                    <option value="passport">Passport / National ID</option>
+                </select>
+            </div>
+            <div class="col-md-5">
+                <input type="file" class="form-control form-control-sm" name="document_file" accept=".pdf,.png,.jpg,.jpeg" required>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-outline-rydeon btn-sm w-100">
+                    <i class="bi bi-upload me-1"></i> Upload Document
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 no-print">
+        <a href="{{ url_for('booking.my_bookings') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> View All My Bookings
+        </a>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-navy-rydeon">
+                <i class="bi bi-printer me-1"></i> Print Rental Voucher
+            </button>
+            <a href="{{ url_for('frontend.catalogue') }}" class="btn btn-primary-rydeon">
+                <i class="bi bi-plus-circle me-1"></i> Browse More Cars
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

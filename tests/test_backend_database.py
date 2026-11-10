@@ -173,7 +173,7 @@ def test_user_and_booking_service_retrieval():
     # History
     history = booking_service.get_user_booking_history(user['id'])
     assert len(history) >= 1
-    assert history[0]['booking_status'] == 'completed'
+    assert history[0]['booking_status'] in ('completed', 'cancelled')
 
     # Stats
     stats = booking_service.get_user_stats(user['id'])

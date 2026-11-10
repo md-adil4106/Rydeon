@@ -44,27 +44,18 @@
 
             <!-- Action Buttons -->
             <div class="vehicle-actions">
-                <button type="button" 
-                        class="btn btn-outline-rydeon w-50" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#vehicleDetailModal"
-                        data-id="{{ vehicle.id }}"
-                        data-name="{{ vehicle.name }}"
-                        data-category="{{ vehicle.category }}"
-                        data-price="{{ "%.2f"|format(vehicle.price_per_day|float) }}"
-                        data-seats="{{ vehicle.seating_capacity or vehicle.seats }}"
-                        data-fuel="{{ vehicle.fuel_type }}"
-                        data-power="{{ vehicle.horsepower or '450 HP' }}"
-                        data-range="{{ vehicle.range_or_mileage or '320 mi range' }}"
-                        data-tagline="{{ vehicle.description or vehicle.tagline }}"
-                        data-img="{{ vehicle.image or vehicle.image_url }}"
-                        data-transmission="{{ vehicle.transmission }}"
-                        data-features='{{ (vehicle.features or ["All-Wheel Drive", "Adaptive Suspension", "Fast DC Charging", "Collision Shield", "Premium Audio"]) | tojson | forceescape }}'>
+                <a href="{{ url_for('booking.vehicle_details', vehicle_id=vehicle.id) }}" class="btn btn-outline-rydeon w-50 text-center">
                     <i class="bi bi-info-circle me-1"></i> Details
-                </button>
-                <a href="{{ url_for('frontend.dashboard') }}" class="btn btn-primary-rydeon w-50 text-center">
-                    Reserve
                 </a>
+                {% if vehicle.status == 'available' %}
+                <a href="{{ url_for('booking.book_vehicle', vehicle_id=vehicle.id) }}" class="btn btn-primary-rydeon w-50 text-center">
+                    Book Now
+                </a>
+                {% else %}
+                <button class="btn btn-secondary w-50 text-center" disabled>
+                    Rented
+                </button>
+                {% endif %}
             </div>
         </div>
     </div>

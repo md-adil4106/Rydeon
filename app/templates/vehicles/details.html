@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}{{ vehicle.name }} | Rydeon Fleet{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb Header -->
+<section class="py-3 bg-white border-bottom">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb small mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('frontend.index') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('frontend.catalogue') }}">Fleet Catalogue</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ vehicle.name }}</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<!-- Vehicle Details Main View -->
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- Left: Image Showcase & Gallery -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="position-relative" style="height: 420px; background-color: #0B132B;">
+                    <img src="{{ vehicle.image }}" alt="{{ vehicle.name }}" class="w-100 h-100 object-fit-cover">
+                    <span class="badge-category position-absolute top-0 start-0 m-3 px-3 py-2 fs-6">
+                        {{ vehicle.category }}
+                    </span>
+                    {% if vehicle.status == 'available' %}
+                        <span class="badge bg-success position-absolute top-0 end-0 m-3 px-3 py-2 fw-bold">
+                            <i class="bi bi-check-circle me-1"></i> Available Now
+                        </span>
+                    {% elif vehicle.status == 'rented' %}
+                        <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3 px-3 py-2 fw-bold">
+                            <i class="bi bi-clock me-1"></i> Currently On Rent
+                        </span>
+                    {% else %}
+                        <span class="badge bg-danger position-absolute top-0 end-0 m-3 px-3 py-2 fw-bold">
+                            <i class="bi bi-tools me-1"></i> In Maintenance
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Description & Narrative -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h5 class="fw-bold mb-3 text-dark">Vehicle Overview</h5>
+                <p class="text-secondary lead fs-6 mb-4">
+                    {{ vehicle.description }}
+                </p>
+
+                <h6 class="fw-bold text-uppercase small text-muted mb-3">Certified Rydeon Standard Equipment</h6>
+                <div class="row g-2">
+                    <div class="col-sm-6 d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-check-circle-fill text-primary"></i>
+                        <span class="small fw-semibold text-secondary">All-Wheel Dynamic Traction Control</span>
+                    </div>
+                    <div class="col-sm-6 d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-check-circle-fill text-primary"></i>
+                        <span class="small fw-semibold text-secondary">Active Collision Prevention Assist</span>
+                    </div>
+                    <div class="col-sm-6 d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-check-circle-fill text-primary"></i>
+                        <span class="small fw-semibold text-secondary">High-Fidelity Premium Surround Audio</span>
+                    </div>
+                    <div class="col-sm-6 d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-check-circle-fill text-primary"></i>
+                        <span class="small fw-semibold text-secondary">Integrated GPS Satellite Navigation</span>
+                    </div>
+                    <div class="col-sm-6 d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-check-circle-fill text-primary"></i>
+                        <span class="small fw-semibold text-secondary">Multi-Zone Automatic Climate Control</span>
+                    </div>
+                    <div class="col-sm-6 d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-check-circle-fill text-primary"></i>
+                        <span class="small fw-semibold text-secondary">Keyless Entry & Push-Button Start</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Specifications & Booking Box -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 85px;">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <span class="text-primary fw-bold small text-uppercase">{{ vehicle.brand }}</span>
+                        <h3 class="fw-bold text-dark mb-1">{{ vehicle.name }}</h3>
+                        <span class="text-muted small font-monospace">Ref: {{ vehicle.registration_number }}</span>
+                    </div>
+                    <div class="text-end">
+                        <div class="text-muted small">Daily Rate</div>
+                        <h2 class="text-primary fw-bold mb-0">${{ "%.2f"|format(vehicle.price_per_day|float) }}</h2>
+                        <span class="text-muted small">/ day (all taxes included)</span>
+                    </div>
+                </div>
+
+                <hr class="my-3">
+
+                <!-- Specifications Matrix -->
+                <h6 class="fw-bold text-uppercase small text-muted mb-3">Mechanical Specifications</h6>
+                <div class="row g-2 mb-4 text-center">
+                    <div class="col-4">
+                        <div class="p-2 border rounded-3 bg-light">
+                            <i class="bi bi-people-fill text-primary fs-5"></i>
+                            <div class="small text-muted mt-1">Capacity</div>
+                            <div class="fw-bold small text-dark">{{ vehicle.seating_capacity }} Seats</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 border rounded-3 bg-light">
+                            <i class="bi bi-gear-wide-connected text-primary fs-5"></i>
+                            <div class="small text-muted mt-1">Transmission</div>
+                            <div class="fw-bold small text-dark">{{ vehicle.transmission }}</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 border rounded-3 bg-light">
+                            <i class="bi bi-fuel-pump-fill text-primary fs-5"></i>
+                            <div class="small text-muted mt-1">Fuel / Energy</div>
+                            <div class="fw-bold small text-dark">{{ vehicle.fuel_type }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inclusions Checklist -->
+                <div class="p-3 bg-light rounded-3 border mb-4 small text-secondary">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-shield-check text-success fs-5"></i>
+                        <span><strong>Multi-Risk Coverage</strong> with zero deductible excess option</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-clock-history text-success fs-5"></i>
+                        <span><strong>Free Cancellation</strong> up to 24 hours prior to pick-up</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-headset text-success fs-5"></i>
+                        <span><strong>24/7 Mechanical Assistance</strong> anywhere within coverage</span>
+                    </div>
+                </div>
+
+                <!-- Booking Action -->
+                {% if vehicle.status == 'available' %}
+                    <a href="{{ url_for('booking.book_vehicle', vehicle_id=vehicle.id) }}" class="btn btn-primary-rydeon w-100 py-3 fw-bold fs-6">
+                        <i class="bi bi-calendar-check me-2"></i> Book This Vehicle Now
+                    </a>
+                {% else %}
+                    <button class="btn btn-secondary w-100 py-3 fw-bold fs-6" disabled>
+                        <i class="bi bi-x-circle me-2"></i> Currently Unavailable for Online Booking
+                    </button>
+                    <p class="text-center small text-muted mt-2 mb-0">Check back later or browse other vehicles in our fleet catalogue.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Similar Vehicles Row -->
+    {% if similar_vehicles %}
+    <div class="mt-5 pt-3">
+        <h4 class="fw-bold mb-3">Similar Vehicles in {{ vehicle.category }} Category</h4>
+        <div class="row">
+            {% for sim in similar_vehicles %}
+                {% include 'components/vehicle_card.html' with context %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

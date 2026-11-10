@@ -252,9 +252,9 @@ def seed_database():
                 total_amount = float(s_class['price_per_day']) * total_days
 
                 cursor.execute("""
-                    INSERT INTO bookings (user_id, vehicle_id, start_date, end_date, total_days, total_amount, booking_status, payment_status)
-                    VALUES (%s, %s, %s, %s, %s, %s, 'confirmed', 'paid')
-                """, (user_id, s_class['id'], start_date, end_date, total_days, total_amount))
+                    INSERT INTO bookings (booking_reference, user_id, vehicle_id, start_date, end_date, total_days, total_amount, booking_status, payment_status)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, 'confirmed', 'paid')
+                """, ("RYD-BK-0001", user_id, s_class['id'], start_date, end_date, total_days, total_amount))
                 booking_id = cursor.lastrowid
 
                 # Seed corresponding payment
@@ -285,9 +285,9 @@ def seed_database():
                 past_amount = float(taycan['price_per_day']) * past_days
 
                 cursor.execute("""
-                    INSERT INTO bookings (user_id, vehicle_id, start_date, end_date, total_days, total_amount, booking_status, payment_status)
-                    VALUES (%s, %s, %s, %s, %s, %s, 'completed', 'paid')
-                """, (user_id, taycan['id'], past_start, past_end, past_days, past_amount))
+                    INSERT INTO bookings (booking_reference, user_id, vehicle_id, start_date, end_date, total_days, total_amount, booking_status, payment_status)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, 'completed', 'paid')
+                """, ("RYD-BK-0002", user_id, taycan['id'], past_start, past_end, past_days, past_amount))
                 past_booking_id = cursor.lastrowid
 
                 cursor.execute("""

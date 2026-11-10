@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS vehicles (
 -- 3. Bookings Table
 CREATE TABLE IF NOT EXISTS bookings (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    booking_reference VARCHAR(50) UNIQUE DEFAULT NULL,
     user_id INT NOT NULL,
     vehicle_id INT NOT NULL,
     start_date DATE NOT NULL,
@@ -62,7 +63,8 @@ CREATE TABLE IF NOT EXISTS bookings (
     INDEX idx_booking_user (user_id),
     INDEX idx_booking_vehicle (vehicle_id),
     INDEX idx_booking_dates (start_date, end_date),
-    INDEX idx_booking_status (booking_status)
+    INDEX idx_booking_status (booking_status),
+    INDEX idx_booking_ref (booking_reference)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 4. Documents Table
